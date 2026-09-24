@@ -86,11 +86,29 @@ export default function SiteScripts({
           // event has already fired (unlike the original site, where it was
           // a synchronous <script> tag parsed before "load" could fire), so
           // that handler is silently missed and the preloader never hides.
-          // Fall back to the same jQuery call main.js would have made.
-          if (document.readyState === "complete") {
-            const jq = (window as unknown as { jQuery?: (s: string) => { fadeToggle: () => void } }).jQuery;
-            jq?.(".preloader").fadeToggle();
-          }
+          //
+          // IMPORTANT: this fallback must be the LAST word on the preloader's
+          // visibility, and must always HIDE, never toggle. main.js's own
+          // $(window).on("load", ...) handler is registered the moment this
+          // very script finishes evaluating (synchronously, right before this
+          // onLoad callback runs) -- so if "load" already fired, main.js's
+          // handler fires immediately, synchronously, before this callback's
+          // body runs. A naive fadeToggle() fallback here would then toggle
+          // the preloader BACK to visible, leaving it stuck open forever --
+          // this was the exact cause of the preloader hanging on every direct
+          // page load. Waiting one tick and then forcing display:none
+          // (never toggling) makes this deterministic regardless of which
+          // handler ran first or how many times either one fires.
+          setTimeout(() => {
+            const el = document.querySelector<HTMLElement>(".preloader");
+            const jq = (
+              window as unknown as {
+                jQuery?: (s: string) => { stop: (a?: boolean, b?: boolean) => { hide: () => void } };
+              }
+            ).jQuery;
+            jq?.(".preloader").stop(true, true).hide();
+            if (el) el.style.display = "none";
+          }, 550);
         }}
       />
       {hasContactForm && (

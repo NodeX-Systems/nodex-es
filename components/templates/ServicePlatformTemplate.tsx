@@ -2,7 +2,6 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import SiteChrome from "@/components/SiteChrome";
 import SiteScripts from "@/components/SiteScripts";
 import { ROUTES, type Locale } from "@/lib/routes";
 
@@ -212,7 +211,6 @@ export default function ServicePlatformTemplate({ locale }: { locale: Locale }) 
 
   return (
     <>
-      <SiteChrome />
       <Header locale={locale} />
       <MobileNav locale={locale} />
 

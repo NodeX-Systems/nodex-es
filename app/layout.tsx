@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import { GA_MEASUREMENT_ID } from "@/lib/constants";
+import SiteChrome from "@/components/SiteChrome";
+import NavigationLoader from "@/components/NavigationLoader";
 
 export const metadata: Metadata = {
   title: "NodeX",
@@ -42,7 +44,17 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="body">{children}</body>
+      <body className="body">
+        {/* Rendered once in the root layout (not per-page) so it survives
+            client-side <Link> navigations instead of being unmounted and
+            remounted -- main.js only hides it once, on the initial
+            document's window "load" event, which does not fire again on
+            SPA navigation. Mounting it per-page caused the preloader to
+            reappear and never hide again after clicking any navbar link. */}
+        <SiteChrome />
+        <NavigationLoader />
+        {children}
+      </body>
     </html>
   );
 }

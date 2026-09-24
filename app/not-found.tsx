@@ -3,7 +3,6 @@ import Link from "next/link";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import SiteChrome from "@/components/SiteChrome";
 import SiteScripts from "@/components/SiteScripts";
 import { SITE_NAME, SITE_URL } from "@/lib/constants";
 import { ROUTES } from "@/lib/routes";
@@ -41,7 +40,6 @@ export const metadata: Metadata = {
 export default function NotFound() {
   return (
     <>
-      <SiteChrome />
       <Header locale="es" />
       <MobileNav locale="es" />
 
