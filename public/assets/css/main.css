@@ -6241,6 +6241,11 @@ body.body {
   padding: 8px 15px;
   transition: all 0.3s;
 }
+.header-area.header-area1 .main-menu-ex ul li a.main1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
 .header-area.header-area1 .main-menu-ex ul li:hover .tp-submenu {
   visibility: visible;
   transition: all 0.5s ease-in-out;
@@ -6411,6 +6416,11 @@ li.has-dropdown1 span {
   font-weight: 500;
   padding: 8px 15px;
   transition: all 0.3s;
+}
+.header-area.header-area1 .header-elements .main-menu-ex ul li a.main1 {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 .header-area.header-area1 .header-elements .main-menu-ex ul li a:hover {
   color: var(--vtc-bg-main-bg-1);

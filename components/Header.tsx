@@ -27,7 +27,7 @@ export default function Header({ locale }: { locale: Locale }) {
                     </li>
                     <li className="dropdown-menu-parrent">
                       <a href="#" className="main1">
-                        {labels.services}{" "}
+                        {labels.services}
                         <i className="fa-solid fa-angle-down"></i>
                       </a>
                       <ul>
