@@ -8,3 +8,6 @@ _backup
 /.next
 /out
 *.tsbuildinfo
+
+# pnpm is the package manager (Vercel picks it from pnpm-lock.yaml)
+package-lock.json
