@@ -1,0 +1,212 @@
+/* ============================
+   HERO DECORATIVE LOGO
+   ============================ */
+.hero-area1 {
+  overflow: hidden;
+}
+.hero-container {
+  position: relative;
+}
+.hero-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../img/logo/logo_nodex.png');
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 400px auto;
+  opacity: 0.08;
+  filter: grayscale(1);
+  pointer-events: none;
+}
+@media (max-width: 991px) {
+  .hero-container::after {
+    display: none;
+  }
+}
+
+/* ============================
+   MOBILE NAV — SUB-MENU COLLAPSED BY DEFAULT
+   ============================ */
+.mobile-nav li ul {
+  display: none;
+}
+
+/* ============================
+   INNER PAGE SPACING
+   ============================ */
+.contact-page.sp {
+  padding-top: 30px;
+}
+
+.about-page-sec1.sp {
+  padding-top: 30px;
+}
+
+@media (max-width: 991px) {
+  .about-page-sec1 .about3-images .col-lg-6:first-child {
+    margin-bottom: 24px;
+  }
+}
+
+/* ============================
+   COMMON HERO — SMALLER + HIDDEN ON MOBILE
+   ============================ */
+.common-hero {
+  height: 250px;
+}
+.common-hero .main-heading {
+  padding-top: 50px;
+}
+
+@media (max-width: 991px) {
+  .common-hero {
+    padding-top: 50px;
+    padding-bottom: 10px;
+    height: auto;
+  }
+  .contact-page.sp,
+  .about-page-sec1.sp,
+  .service-intro-band {
+    padding-top: 50px;
+  }
+}
+
+/* ============================
+   CONTACT FORM POPUP
+   ============================ */
+#form-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  padding: 20px;
+}
+#form-popup-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+.form-popup-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 48px 40px 40px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  transform: translateY(24px);
+  transition: transform 0.25s ease;
+}
+#form-popup-overlay.active .form-popup-card {
+  transform: translateY(0);
+}
+.form-popup-icon {
+  font-size: 56px;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+.form-popup-ok .form-popup-icon {
+  color: var(--vtc-bg-main-bg-2);
+}
+.form-popup-fail .form-popup-icon {
+  color: #e55353;
+}
+.form-popup-title {
+  font-size: var(--f-fs-font-fs24);
+  font-weight: var(--f-fw-bold);
+  color: var(--vtc-text-heading-text-1);
+  margin-bottom: 12px;
+}
+.form-popup-msg {
+  color: var(--vtc-text-pera-text-1);
+  font-size: var(--f-fs-font-fs18);
+  margin-bottom: 28px;
+}
+.form-popup-close {
+  border: none;
+  cursor: pointer;
+}
+
+/* ============================
+   CV FILE UPLOAD
+   ============================ */
+.cv-upload-wrap {
+  position: relative;
+}
+
+.cv-upload-wrap input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cv-upload-label {
+  display: flex;
+  align-items: stretch;
+  margin-top: 14px;
+  border: 1.5px solid #E6E7E9;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.3s;
+  width: 100%;
+}
+
+.cv-upload-label:hover {
+  border-color: var(--vtc-bg-main-bg-2);
+}
+
+.cv-upload-label.has-file {
+  border-color: var(--vtc-bg-main-bg-2);
+}
+
+/* Green "Choose File" button side */
+.cv-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background-color: var(--vtc-bg-main-bg-2);
+  color: var(--vtc-text-heading-text-1);
+  font-size: var(--f-fs-font-fs16);
+  font-weight: var(--f-fw-semibold);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color 0.3s;
+}
+
+.cv-upload-label:hover .cv-btn {
+  background-color: var(--vtc-bg-main-bg-1);
+}
+
+.cv-btn i {
+  font-size: 15px;
+}
+
+/* Filename display side */
+.cv-filename {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  color: #525863;
+  font-size: var(--f-fs-font-fs16);
+  font-weight: var(--f-fw-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.cv-upload-label.has-file .cv-filename {
+  color: var(--vtc-text-heading-text-1);
+  font-weight: var(--f-fw-semibold);
+}
