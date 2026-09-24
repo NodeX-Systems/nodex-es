@@ -1,14 +1,16 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import SiteScripts from "@/components/SiteScripts";
+import PageHero from "@/components/ui/PageHero";
+import ServiceIntroBand from "@/components/services/ServiceIntroBand";
+import ServiceDetails from "@/components/services/ServiceDetails";
 import { ROUTES, type Locale } from "@/lib/routes";
+import introImg from "@/public/assets/img/service/service-details-img3.png";
 
 const CONTENT = {
   es: {
     h1: "Programa de Eficiencia Empresarial y Digitalización",
-    home: "Inicio ",
+    home: "Inicio",
     breadcrumb: "Consultoria tech",
     introHeading: "Programa de Eficiencia Empresarial y Digitalización",
     introText: (
@@ -141,7 +143,7 @@ const CONTENT = {
     h1: (
       <>Business Efficiency &amp; Digitalisation Programme</>
     ),
-    home: "Home ",
+    home: "Home",
     breadcrumb: "Technical Leadership",
     introHeading: (
       <>Business Efficiency &amp; Digitalisation Programme</>
@@ -275,193 +277,40 @@ export default function ServiceLeadershipTemplate({
       <Header locale={locale} />
       <MobileNav locale={locale} />
 
-      <div className="common-hero">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-10 m-auto text-center">
-              <div className="main-heading">
-                <h1>{t.h1}</h1>
-                <div className="pages-intro">
-                  <Link href={routes.home}>{t.home}</Link>
-                  <span>
-                    <i className="fa-regular fa-angle-right"></i>
-                  </span>
-                  <p>{t.breadcrumb}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        width="wide"
+        title={t.h1}
+        homeHref={routes.home}
+        homeLabel={t.home}
+        current={t.breadcrumb}
+      />
 
-      <div className="service-intro-band">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="service-intro-image overlay-anim">
-                <img src="/assets/img/service/service-details-img3.png" alt="" />
-              </div>
-            </div>
-            <div className="col-lg-6">
-              <div className="heading1-w service-intro-content">
-                <h2>{t.introHeading}</h2>
-                <div className="space16"></div>
-                <p>{t.introText}</p>
-                <div className="space30"></div>
-                <Link className="theme-btn1" href={routes.contact}>
-                  {t.talkCta}{" "}
-                  <span>
-                    <i className="fa-solid fa-arrow-right"></i>
-                  </span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ServiceIntroBand
+        image={introImg}
+        title={t.introHeading}
+        text={t.introText}
+        ctaLabel={t.talkCta}
+        ctaHref={routes.contact}
+      />
 
-      <div className="service-details-all sp">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8 m-auto">
-              <div className="service-details-area">
-                <article>
-                  <div className="heading1">
-                    <div className="space30"></div>
-                    <h3>{t.h3Problems}</h3>
-                    <div className="space16"></div>
-                    <p>{t.pProblems}</p>
-                    <div className="space30"></div>
-                    <h3>{t.h3Flex}</h3>
-                    <div className="space16"></div>
-                    <p>{t.pFlex1}</p>
-                    <div className="space16"></div>
-                    <p>{t.pFlex2}</p>
-                  </div>
-                </article>
-
-                <div className="space30"></div>
-                <article>
-                  <div className="heading1">
-                    <h3>{t.h3Serious}</h3>
-                    <div className="space16"></div>
-                    <p>{t.pSerious1}</p>
-                    <div className="space16"></div>
-                    <p>{t.pSerious2}</p>
-                  </div>
-                </article>
-
-                <div className="space20"></div>
-
-                <div className="faq-all-area">
-                  <div
-                    className="accordion accordion1 accordion-flush"
-                    id="accordionFlushExample"
-                  >
-                    <div className="accordion-item active">
-                      <h2 className="accordion-header" id="flush-headingOne">
-                        <button
-                          className="accordion-button"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#flush-collapseOne"
-                          aria-expanded="false"
-                          aria-controls="flush-collapseOne"
-                        >
-                          {t.faq1Q}
-                        </button>
-                      </h2>
-                      <div
-                        id="flush-collapseOne"
-                        className="accordion-collapse collapse show"
-                        aria-labelledby="flush-headingOne"
-                        data-bs-parent="#accordionFlushExample"
-                      >
-                        <div className="accordion-body">{t.faq1A}</div>
-                      </div>
-                    </div>
-                    <div className="accordion-item">
-                      <h2 className="accordion-header" id="flush-headingTwo">
-                        <button
-                          className="accordion-button collapsed"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#flush-collapseTwo"
-                          aria-expanded="false"
-                          aria-controls="flush-collapseTwo"
-                        >
-                          {t.faq2Q}
-                        </button>
-                      </h2>
-                      <div
-                        id="flush-collapseTwo"
-                        className="accordion-collapse collapse"
-                        aria-labelledby="flush-headingTwo"
-                        data-bs-parent="#accordionFlushExample"
-                      >
-                        <div className="accordion-body">{t.faq2A}</div>
-                      </div>
-                    </div>
-                    <div className="accordion-item">
-                      <h2
-                        className="accordion-header"
-                        id="flush-headingThree"
-                      >
-                        <button
-                          className="accordion-button collapsed"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#flush-collapseThree"
-                          aria-expanded="false"
-                          aria-controls="flush-collapseThree"
-                        >
-                          {t.faq3Q}
-                        </button>
-                      </h2>
-                      <div
-                        id="flush-collapseThree"
-                        className="accordion-collapse collapse"
-                        aria-labelledby="flush-headingThree"
-                        data-bs-parent="#accordionFlushExample"
-                      >
-                        <div className="accordion-body">{t.faq3A}</div>
-                      </div>
-                    </div>
-                    <div className="accordion-item">
-                      <h2
-                        className="accordion-header"
-                        id="flush-headingFour"
-                      >
-                        <button
-                          className="accordion-button collapsed"
-                          type="button"
-                          data-bs-toggle="collapse"
-                          data-bs-target="#flush-collapseFour"
-                          aria-expanded="false"
-                          aria-controls="flush-collapseFour"
-                        >
-                          {t.faq4Q}
-                        </button>
-                      </h2>
-                      <div
-                        id="flush-collapseFour"
-                        className="accordion-collapse collapse"
-                        aria-labelledby="flush-headingFour"
-                        data-bs-parent="#accordionFlushExample"
-                      >
-                        <div className="accordion-body">{t.faq4A}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ServiceDetails
+        leadingGap
+        articles={[
+          [
+            { title: t.h3Problems, paragraphs: [t.pProblems] },
+            { title: t.h3Flex, paragraphs: [t.pFlex1, t.pFlex2] },
+          ],
+          [{ title: t.h3Serious, paragraphs: [t.pSerious1, t.pSerious2] }],
+        ]}
+        faq={[
+          { question: t.faq1Q, answer: t.faq1A },
+          { question: t.faq2Q, answer: t.faq2A },
+          { question: t.faq3Q, answer: t.faq3A },
+          { question: t.faq4Q, answer: t.faq4A },
+        ]}
+      />
 
       <Footer locale={locale} copyrightVariant="hyphen" />
-      <SiteScripts hasContactForm={false} />
     </>
   );
 }

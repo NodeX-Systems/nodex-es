@@ -1,15 +1,22 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import SiteScripts from "@/components/SiteScripts";
+import LeadForm from "@/components/forms/LeadForm";
+import ContactSection, {
+  fieldColClass,
+  formRowClass,
+  halfFieldColClass,
+  inputClass,
+  submitColClass,
+} from "@/components/pages/ContactSection";
+import PageHero from "@/components/ui/PageHero";
 import { FORM_ENDPOINTS } from "@/lib/constants";
 import { ROUTES, type Locale } from "@/lib/routes";
 
 const CONTENT = {
   es: {
     h1: "Contáctanos",
-    homeLabel: "Inicio ",
+    homeLabel: "Inicio",
     breadcrumbCurrent: "Contacto",
     span: "Contáctanos",
     h2: "Ponte en Contacto. Empecemos a Construir.",
@@ -26,7 +33,7 @@ const CONTENT = {
   },
   en: {
     h1: "Contact Us",
-    homeLabel: "Home ",
+    homeLabel: "Home",
     breadcrumbCurrent: "Contact",
     span: "Contact Us",
     h2: "Get in Touch. Let's Start Building.",
@@ -52,115 +59,70 @@ export default function ContactTemplate({ locale }: { locale: Locale }) {
       <MobileNav locale={locale} />
 
       {/* HERO AREA */}
-      <div className="common-hero">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-6 m-auto text-center">
-              <div className="main-heading">
-                <h1>{t.h1}</h1>
-                <div className="pages-intro">
-                  <Link href={ROUTES[locale].home}>{t.homeLabel}</Link>
-                  <span>
-                    <i className="fa-regular fa-angle-right"></i>
-                  </span>
-                  <p>{t.breadcrumbCurrent}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHero
+        title={t.h1}
+        homeHref={ROUTES[locale].home}
+        homeLabel={t.homeLabel}
+        current={t.breadcrumbCurrent}
+      />
 
       {/* CONTACT AREA */}
-      <div className="contact-page sp">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6 align-self-start">
-              <div className="heading1">
-                <span className="span">{t.span}</span>
-                <h2>{t.h2}</h2>
-                <div className="space16"></div>
-                <p>{t.intro}</p>
-              </div>
-            </div>
-
-            <div className="col-lg-6">
-              <div className="contact1-form">
-                <div className="heading1">
-                  <h3>{t.h3}</h3>
-                  <div className="space16"></div>
-                  <p>{t.formIntro}</p>
-                </div>
-                <div className="space10"></div>
-
-                <form action={FORM_ENDPOINTS.contact} method="POST">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="single-input">
-                        <input
-                          type="text"
-                          name="name"
-                          placeholder={t.namePlaceholder}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="single-input">
-                        <input
-                          type="email"
-                          name="email"
-                          placeholder={t.emailPlaceholder}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="single-input">
-                        <input
-                          type="number"
-                          name="phone"
-                          placeholder={t.phonePlaceholder}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-12">
-                      <div className="single-input">
-                        <textarea
-                          name="message"
-                          rows={4}
-                          placeholder={t.messagePlaceholder}
-                        ></textarea>
-                      </div>
-                    </div>
-
-                    <div className="col-md-12">
-                      <div className="button">
-                        <button
-                          type="submit"
-                          title="Submit"
-                          className="theme-btn1"
-                        >
-                          {t.submitLabel}{" "}
-                          <span>
-                            <i className="fa-solid fa-arrow-right"></i>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
+      <ContactSection
+        eyebrow={t.span}
+        title={t.h2}
+        intro={t.intro}
+        formTitle={t.h3}
+        formIntro={t.formIntro}
+      >
+        <LeadForm
+          kind="contact"
+          endpoint={FORM_ENDPOINTS.contact}
+          locale={locale}
+          submitLabel={t.submitLabel}
+          className={formRowClass}
+          submitWrapperClassName={submitColClass}
+        >
+          <div className={fieldColClass}>
+            <input
+              type="text"
+              name="name"
+              placeholder={t.namePlaceholder}
+              required
+              className={inputClass}
+            />
           </div>
-        </div>
-      </div>
+
+          <div className={halfFieldColClass}>
+            <input
+              type="email"
+              name="email"
+              placeholder={t.emailPlaceholder}
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div className={halfFieldColClass}>
+            <input
+              type="number"
+              name="phone"
+              placeholder={t.phonePlaceholder}
+              className={inputClass}
+            />
+          </div>
+
+          <div className={fieldColClass}>
+            <textarea
+              name="message"
+              rows={4}
+              placeholder={t.messagePlaceholder}
+              className={inputClass}
+            ></textarea>
+          </div>
+        </LeadForm>
+      </ContactSection>
 
       <Footer locale={locale} copyrightVariant="normal" />
-      <SiteScripts hasContactForm={true} />
     </>
   );
 }

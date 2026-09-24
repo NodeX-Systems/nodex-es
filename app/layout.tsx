@@ -1,8 +1,21 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import localFont from "next/font/local";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { GA_MEASUREMENT_ID } from "@/lib/constants";
 import SiteChrome from "@/components/SiteChrome";
-import NavigationLoader from "@/components/NavigationLoader";
+import "./globals.css";
+
+// Figtree (OFL), self-hosted: this is the exact variable latin file Google
+// Fonts served the original site. next/font/google fetches an unhinted
+// build of the same version that renders ~1% wider on Linux/Windows, which
+// changed line wrapping.
+const figtree = localFont({
+  src: "./fonts/Figtree-latin.woff2",
+  weight: "300 900",
+  style: "normal",
+  variable: "--font-figtree",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "NodeX",
@@ -14,47 +27,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
-      <head>
-        <link rel="shortcut icon" href="/assets/img/logo/titel.png" type="image/x-icon" />
-        <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/assets/css/fontawesome.css" />
-        <link rel="stylesheet" href="/assets/css/slick-slider.css" />
-        <link rel="stylesheet" href="/assets/css/aos.css" />
-        <link rel="stylesheet" href="/assets/css/mobile-menu.css" />
-        <link rel="stylesheet" href="/assets/css/main.css?v=1" />
-        <link rel="stylesheet" href="/assets/css/contact-form.css?v=1" />
-        {/* jQuery must load synchronously before any other script that
-            depends on the global $ / jQuery existing. */}
-        <Script
-          src="/assets/js/jquery-3-6-0.min.js"
-          strategy="beforeInteractive"
-        />
-        {/* Google Analytics -- identical on every page/locale. */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-          strategy="afterInteractive"
-        />
-        <Script id="ga-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${GA_MEASUREMENT_ID}');
-          `}
-        </Script>
-      </head>
-      <body className="body">
+    <html lang="es" className={figtree.variable}>
+      <body>
         {/* Rendered once in the root layout (not per-page) so it survives
             client-side <Link> navigations instead of being unmounted and
-            remounted -- main.js only hides it once, on the initial
-            document's window "load" event, which does not fire again on
-            SPA navigation. Mounting it per-page caused the preloader to
-            reappear and never hide again after clicking any navbar link. */}
+            remounted on every route change. */}
         <SiteChrome />
-        <NavigationLoader />
         {children}
+        {/* Without JS, show everything the scroll animations would reveal. */}
+        <noscript>
+          <style>{`[data-reveal],[data-reveal-item]{opacity:1!important;translate:none!important;scale:none!important;visibility:visible!important}`}</style>
+        </noscript>
       </body>
+      <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
     </html>
   );
 }

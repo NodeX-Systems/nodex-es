@@ -1,10 +1,22 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 import MobileNav from "@/components/MobileNav";
 import Footer from "@/components/Footer";
-import SiteScripts from "@/components/SiteScripts";
-import { FORM_ENDPOINTS, CONTACT_EMAIL } from "@/lib/constants";
+import HomeHero from "@/components/home/HomeHero";
+import LogoMarquee from "@/components/home/LogoMarquee";
+import WhyNodex from "@/components/home/WhyNodex";
+import ServicesSection from "@/components/home/ServicesSection";
+import HowWeWork from "@/components/home/HowWeWork";
+import HomeContact from "@/components/home/HomeContact";
 import { ROUTES, type Locale } from "@/lib/routes";
+import serviceImg1 from "@/public/assets/img/service/service-img1.png";
+import serviceImg2 from "@/public/assets/img/service/service-img2.png";
+import serviceImg3 from "@/public/assets/img/service/service-img3.png";
+import serviceIcon1 from "@/public/assets/img/icons/service1-icon1.png";
+import serviceIcon2 from "@/public/assets/img/icons/service1-icon2.png";
+import serviceIcon3 from "@/public/assets/img/icons/service1-icon3.png";
+import workIcon1 from "@/public/assets/img/icons/work1-icon1.png";
+import workIcon2 from "@/public/assets/img/icons/work1-icon2.png";
+import workIcon3 from "@/public/assets/img/icons/work1-icon3.png";
 
 const CONTENT = {
   es: {
@@ -261,605 +273,107 @@ export default function HomeTemplate({ locale }: { locale: Locale }) {
       <Header locale={locale} />
       <MobileNav locale={locale} />
 
-      {/*=====HERO AREA START =======*/}
-      <div className="hero-area1">
-        <div className="container hero-container">
-          <div className="row align-items-center">
-            <div className="col-12">
-              <div className="main-heading">
-                <span
-                  className="span"
-                  data-aos="fade-right"
-                  data-aos-duration="800"
-                >
-                  {content.heroSpan}
-                </span>
-                <h1 className="text-anime-style-3">{content.heroH1}</h1>
-                <div className="space16"></div>
-                <p data-aos="fade-right" data-aos-duration="1000">
-                  {content.heroP}
-                </p>
+      <HomeHero
+        eyebrow={content.heroSpan}
+        title={content.heroH1}
+        text={content.heroP}
+        primary={{ href: routes.contact, label: content.heroBtn1 }}
+        secondary={{ href: routes.about, label: content.heroBtn2 }}
+      />
 
-                <div className="space30"></div>
-                <div
-                  className="hero1-buttons"
-                  data-aos="fade-right"
-                  data-aos-duration="1200"
-                >
-                  <Link className="theme-btn1" href={routes.contact}>
-                    {content.heroBtn1}{" "}
-                    <span>
-                      <i className="fa-solid fa-arrow-right"></i>
-                    </span>
-                  </Link>
-                  <Link className="theme-btn2" href={routes.about}>
-                    {content.heroBtn2}{" "}
-                    <span>
-                      <i className="fa-solid fa-arrow-right"></i>
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====HERO AREA END=======*/}
+      <LogoMarquee />
 
-      {/*=====HERO SLIDER AREA START=======*/}
-      <div className="hero1-slider">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="logo-slider">
-                <div className="single-slider">
-                  <img src="/assets/img/logo/sliderlogo-auren.png" alt="Logo Auren" />
-                </div>
-                <div className="single-slider">
-                  <img src="/assets/img/logo/sliderlogo-bbva.png" alt="Logo BBVA" />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-dailyplaylists.png"
-                    alt="Logo Daily Playlists"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-econocom.png"
-                    alt="Logo Econocom"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-igeneris.png"
-                    alt="Logo iGeneris"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-impackta.png"
-                    alt="Logo Impackta"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-incentro.png"
-                    alt="Logo Incentro"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-ioforge.png"
-                    alt="Logo ioforge"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-mediapro.png"
-                    alt="Logo Mediapro"
-                  />
-                </div>
-                <div className="single-slider">
-                  <img
-                    src="/assets/img/logo/sliderlogo-shakers.png"
-                    alt="Logo Shakers"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====HERO SLIDER AREA END=======*/}
+      <WhyNodex
+        stat1={content.choose1Stat1}
+        stat2={content.choose1Stat2}
+        eyebrow={content.choose1Span}
+        title={content.choose1H2}
+        text={content.choose1P}
+        items={[
+          content.choose1List1,
+          content.choose1List2,
+          content.choose1List3,
+          content.choose1List4,
+          content.choose1List5,
+          content.choose1List6,
+        ]}
+        button={{ href: routes.about, label: content.choose1Btn }}
+      />
 
-      {/*=====ABOUT AREA START=======*/}
-      <div className="chosse1 sp">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-2">
-              <div className="" data-aos="zoom-in-up" data-aos-duration="900">
-                <div className="icon-box">
-                  <div className="icon">
-                    <img src="/assets/img/icons/choose1-icon2.png" alt="" />
-                  </div>
-                  <div className="heading1">
-                    <h3>
-                      <span className="counter">100</span>%
-                    </h3>
-                    <div className="space10"></div>
-                    <p>{content.choose1Stat1}</p>
-                  </div>
-                </div>
-              </div>
+      <ServicesSection
+        eyebrow={content.serviceSpan}
+        title={content.serviceH2}
+        text={content.serviceP}
+        cards={[
+          {
+            image: serviceImg1,
+            icon: serviceIcon1,
+            href: routes.svcEmbedded,
+            title: content.service1Title,
+            text: content.service1P,
+          },
+          {
+            image: serviceImg2,
+            icon: serviceIcon2,
+            href: routes.svcPlatform,
+            title: content.service2Title,
+            text: content.service2P,
+          },
+          {
+            image: serviceImg3,
+            icon: serviceIcon3,
+            href: routes.svcLeadership,
+            title: content.service3Title,
+            text: content.service3P,
+          },
+        ]}
+        button={{ href: routes.contact, label: content.serviceBtn }}
+      />
 
-              <div
-                className=""
-                data-aos="zoom-in-up"
-                data-aos-duration="1200"
-              >
-                <div className="icon-box icon-box2">
-                  <div className="icon">
-                    <img src="/assets/img/icons/choose1-icon3.png" alt="" />
-                  </div>
-                  <div className="heading1">
-                    <h3>&lt;1 week</h3>
-                    <div className="space10"></div>
-                    <p>{content.choose1Stat2}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-10">
-              <div className="heading1 choose1-heading">
-                <span
-                  className="span"
-                  data-aos="fade-left"
-                  data-aos-duration="700"
-                >
-                  {content.choose1Span}
-                </span>
-                <h2 className="text-anime-style-3">{content.choose1H2}</h2>
-                <div className="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="900">
-                  {content.choose1P}
-                </p>
+      <HowWeWork
+        eyebrow={content.workSpan}
+        title={content.workH2}
+        text={content.workP}
+        steps={[
+          {
+            icon: workIcon1,
+            href: routes.contact,
+            title: content.work1Title,
+            text: content.work1P,
+          },
+          {
+            icon: workIcon2,
+            href: routes.contact,
+            title: content.work2Title,
+            text: content.work2P,
+          },
+          {
+            icon: workIcon3,
+            href: routes.contact,
+            title: content.work3Title,
+            text: content.work3P,
+          },
+        ]}
+      />
 
-                <div className="space10"></div>
-                <div
-                  className="row"
-                  data-aos="fade-left"
-                  data-aos-duration="800"
-                >
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List1}
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List2}
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List3}
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List4}
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List5}
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-6">
-                    <ul className="icon-list">
-                      <li>
-                        <span>
-                          <i className="fa-solid fa-check"></i>
-                        </span>{" "}
-                        {content.choose1List6}
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-                <div className="space30"></div>
-                <div
-                  className=""
-                  data-aos="fade-left"
-                  data-aos-duration="1100"
-                >
-                  <Link className="theme-btn1" href={routes.about}>
-                    {content.choose1Btn}{" "}
-                    <span>
-                      <i className="fa-solid fa-arrow-right"></i>
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====ABOUT AREA END=======*/}
-
-      {/*=====SERVICE AREA START=======*/}
-      <div className="service1 sp">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-8 m-auto text-center">
-              <div className="heading1-w">
-                <span
-                  className="span"
-                  data-aos="zoom-in-left"
-                  data-aos-duration="700"
-                >
-                  {content.serviceSpan}
-                </span>
-                <h2 className="text-anime-style-3">{content.serviceH2}</h2>
-                <div className="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="800">
-                  {content.serviceP}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space30"></div>
-          <div className="row">
-            <div className="col-lg-4 col-md-6">
-              <div
-                className="service1-box"
-                data-aos="zoom-in-up"
-                data-aos-duration="700"
-              >
-                <div className="image overlay-anim">
-                  <img src="/assets/img/service/service-img1.png" alt="" />
-                </div>
-                <div className="hover-area">
-                  <div className="icon">
-                    <img src="/assets/img/icons/service1-icon1.png" alt="" />
-                  </div>
-                  <div className="space16"></div>
-                  <div className="heading1-w">
-                    <h4>
-                      <Link href={routes.svcEmbedded}>
-                        {content.service1Title}
-                      </Link>
-                    </h4>
-                    <div className="space16"></div>
-                    <p>{content.service1P}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-lg-4 col-md-6">
-              <div
-                className="service1-box"
-                data-aos="zoom-in-up"
-                data-aos-duration="900"
-              >
-                <div className="image overlay-anim">
-                  <img src="/assets/img/service/service-img2.png" alt="" />
-                </div>
-                <div className="hover-area">
-                  <div className="icon">
-                    <img src="/assets/img/icons/service1-icon2.png" alt="" />
-                  </div>
-                  <div className="space16"></div>
-                  <div className="heading1-w">
-                    <h4>
-                      <Link href={routes.svcPlatform}>
-                        {content.service2Title}
-                      </Link>
-                    </h4>
-                    <div className="space16"></div>
-                    <p>{content.service2P}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-lg-4 col-md-6">
-              <div
-                className="service1-box"
-                data-aos="zoom-in-up"
-                data-aos-duration="1100"
-              >
-                <div className="image overlay-anim">
-                  <img src="/assets/img/service/service-img3.png" alt="" />
-                </div>
-                <div className="hover-area">
-                  <div className="icon">
-                    <img src="/assets/img/icons/service1-icon3.png" alt="" />
-                  </div>
-                  <div className="space16"></div>
-                  <div className="heading1-w">
-                    <h4>
-                      <Link href={routes.svcLeadership}>
-                        {content.service3Title}
-                      </Link>
-                    </h4>
-                    <div className="space16"></div>
-                    <p>{content.service3P}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="space50"></div>
-            <div className="col-lg-12">
-              <div
-                className="text-center"
-                data-aos="zoom-in-up"
-                data-aos-duration="700"
-              >
-                <Link className="theme-btn3" href={routes.contact}>
-                  {content.serviceBtn}{" "}
-                  <span>
-                    <i className="fa-solid fa-arrow-right"></i>
-                  </span>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====SERVICE AREA END=======*/}
-
-      {/*=====WORK AREA START=======*/}
-      <div className="work1 sp">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="work-img reveal overlay-anim">
-                <img src="/assets/img/work/work-image.png" alt="" />
-              </div>
-            </div>
-
-            <div className="col-lg-6">
-              <div className="heading1 work1-heading">
-                <span
-                  className="span"
-                  data-aos="zoom-in-left"
-                  data-aos-duration="700"
-                >
-                  {content.workSpan}
-                </span>
-                <h2 className="text-anime-style-3">{content.workH2}</h2>
-                <div className="space16"></div>
-                <p data-aos="fade-left" data-aos-duration="900">
-                  {content.workP}
-                </p>
-
-                <div className="space10"></div>
-                <div
-                  className=""
-                  data-aos="fade-left"
-                  data-aos-duration="900"
-                >
-                  <div className="work1-box">
-                    <div className="">
-                      <div className="icon">
-                        <img
-                          src="/assets/img/icons/work1-icon1.png"
-                          alt=""
-                        />
-                      </div>
-                    </div>
-                    <div className="heading1">
-                      <h4>
-                        <Link href={routes.contact}>{content.work1Title}</Link>
-                      </h4>
-                      <p>{content.work1P}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className=""
-                  data-aos="fade-left"
-                  data-aos-duration="700"
-                >
-                  <div className="work1-box">
-                    <div className="">
-                      <div className="icon">
-                        <img
-                          src="/assets/img/icons/work1-icon2.png"
-                          alt=""
-                        />
-                      </div>
-                    </div>
-                    <div className="heading1">
-                      <h4>
-                        <Link href={routes.contact}>{content.work2Title}</Link>
-                      </h4>
-                      <p>{content.work2P}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  className=""
-                  data-aos="fade-left"
-                  data-aos-duration="1100"
-                >
-                  <div className="work1-box">
-                    <div className="">
-                      <div className="icon">
-                        <img
-                          src="/assets/img/icons/work1-icon3.png"
-                          alt=""
-                        />
-                      </div>
-                    </div>
-                    <div className="heading1">
-                      <h4>
-                        <Link href={routes.contact}>{content.work3Title}</Link>
-                      </h4>
-                      <p>{content.work3P}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====WORK AREA END=======*/}
-
-      {/*=====CONTACT AREA START=======*/}
-      <div className="contact1 sp">
-        <div className="container">
-          <div className="row align-items-center">
-            <div className="col-lg-6">
-              <div className="heading1-w">
-                <span
-                  className="span"
-                  data-aos="zoom-in-left"
-                  data-aos-duration="700"
-                >
-                  {content.contactSpan}
-                </span>
-                <h2 className="text-anime-style-3">{content.contactH2}</h2>
-                <div className="space16"></div>
-                <p data-aos="fade-right" data-aos-duration="900">
-                  {content.contactP}
-                </p>
-
-                <div
-                  className=""
-                  data-aos="fade-right"
-                  data-aos-duration="1100"
-                >
-                  <div className="contact1-box">
-                    <div className="icon">
-                      <img
-                        src="/assets/img/icons/contact-icon2.png"
-                        alt=""
-                      />
-                    </div>
-                    <div className="heading">
-                      <p>{content.contactEmailLabel}</p>
-                      <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="col-lg-6">
-              <div
-                className="contact1-form"
-                data-aos="zoom-out"
-                data-aos-duration="900"
-              >
-                <div className="heading1">
-                  <h3>{content.formH3}</h3>
-                  <div className="space16"></div>
-                  <p>{content.formP}</p>
-                </div>
-                <div className="space10"></div>
-
-                <form action={FORM_ENDPOINTS.contact} method="POST">
-                  <div className="row">
-                    <div className="col-md-12">
-                      <div className="single-input">
-                        <input
-                          type="text"
-                          name="name"
-                          placeholder={content.placeholderName}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="single-input">
-                        <input
-                          type="email"
-                          name="email"
-                          placeholder={content.placeholderEmail}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-6">
-                      <div className="single-input">
-                        <input
-                          type="number"
-                          name="phone"
-                          placeholder={content.placeholderPhone}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="col-md-12">
-                      <div className="single-input">
-                        <textarea
-                          name="message"
-                          rows={4}
-                          placeholder={content.placeholderMessage}
-                        ></textarea>
-                      </div>
-                    </div>
-
-                    <div className="col-md-12">
-                      <div className="button">
-                        <button
-                          type="submit"
-                          title="Submit"
-                          className="theme-btn1"
-                        >
-                          {content.formSubmit}{" "}
-                          <span>
-                            <i className="fa-solid fa-arrow-right"></i>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      {/*=====CONTACT AREA END=======*/}
+      <HomeContact
+        locale={locale}
+        eyebrow={content.contactSpan}
+        title={content.contactH2}
+        text={content.contactP}
+        emailLabel={content.contactEmailLabel}
+        formTitle={content.formH3}
+        formText={content.formP}
+        placeholders={{
+          name: content.placeholderName,
+          email: content.placeholderEmail,
+          phone: content.placeholderPhone,
+          message: content.placeholderMessage,
+        }}
+        submitLabel={content.formSubmit}
+      />
 
       <Footer locale={locale} copyrightVariant="normal" />
-      <SiteScripts hasContactForm={true} />
     </>
   );
 }
