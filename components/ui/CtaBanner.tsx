@@ -32,9 +32,10 @@ export default function CtaBanner({
             sizes="100vw"
             className="absolute inset-0 -z-10 rounded-none"
           />
-          {/* The text spans the whole width on a phone, so the scrim there runs
-              from the bottom instead of from the left. */}
-          <div className="absolute inset-0 -z-10 bg-linear-to-r from-panel/85 via-panel/35 to-transparent max-[701px]:bg-linear-to-t max-[701px]:from-panel/90 max-[701px]:via-panel/70 max-[701px]:to-panel/30" />
+          <div className="absolute inset-0 -z-10 bg-linear-to-r from-panel/85 via-panel/35 to-transparent" />
+          {/* Up to a tablet the headline spans most of the width, past where the
+              side scrim has faded, so the bottom (where it sits) is darkened too. */}
+          <div className="absolute inset-0 -z-10 bg-linear-to-t from-panel/85 via-panel/55 via-55% to-transparent min-[1025px]:hidden" />
           <Heading
             size="close"
             tone="light"
