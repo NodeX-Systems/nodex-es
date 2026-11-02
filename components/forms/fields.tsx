@@ -87,8 +87,19 @@ export function Select({
       id={id}
       aria-invalid={error ? true : undefined}
       aria-describedby={error ? `${id}-err` : undefined}
-      className={cn(inputClass, "appearance-none bg-no-repeat pr-10", className)}
+      className={cn(
+        inputClass,
+        // The popup is drawn by the browser: pin its scheme and give the
+        // options a solid background so they never inherit the transparent
+        // field (light text on a white list on dark panels). The select
+        // itself also gets a solid background (inline, to override the
+        // transparent one in inputClass) because Chrome paints the popup
+        // with it.
+        "appearance-none bg-no-repeat pr-10 [color-scheme:var(--f-scheme)] [&>option]:bg-(--f-opt-bg) [&>option]:text-(--f-text)",
+        className,
+      )}
       style={{
+        backgroundColor: "var(--f-opt-bg)",
         backgroundImage:
           "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%238da4a8' stroke-width='1.5'><path d='m1 1 5 5 5-5'/></svg>\")",
         backgroundPosition: "right 14px center",
@@ -121,6 +132,6 @@ export function Textarea({
 // is light up to 900px and dark above. Written out in full so Tailwind can
 // see every class.
 export const lightFormVars =
-  "[--f-text:#0b1317] [--f-muted:#7d8d90] [--f-border:#c3cfcd] [--f-focus:#1e5e56] [--f-ring:rgba(30,94,86,0.16)] [--f-err:#b42318]";
+  "[--f-text:#0b1317] [--f-muted:#7d8d90] [--f-border:#c3cfcd] [--f-focus:#1e5e56] [--f-ring:rgba(30,94,86,0.16)] [--f-err:#b42318] [--f-scheme:light] [--f-opt-bg:#ffffff]";
 export const contactPanelVars =
-  "[--f-text:#0b1317] [--f-muted:#7d8d90] [--f-border:#c3cfcd] [--f-focus:#1e5e56] [--f-ring:rgba(30,94,86,0.16)] [--f-err:#b42318] min-[901px]:[--f-text:#f2f4f3] min-[901px]:[--f-muted:#8da4a8] min-[901px]:[--f-border:#2b3d43] min-[901px]:[--f-focus:#caede7] min-[901px]:[--f-ring:rgba(202,237,231,0.18)] min-[901px]:[--f-err:#ff9c8a]";
+  "[--f-text:#0b1317] [--f-muted:#7d8d90] [--f-border:#c3cfcd] [--f-focus:#1e5e56] [--f-ring:rgba(30,94,86,0.16)] [--f-err:#b42318] [--f-scheme:light] [--f-opt-bg:#ffffff] min-[901px]:[--f-scheme:dark] min-[901px]:[--f-opt-bg:#0b1317] min-[901px]:[--f-text:#f2f4f3] min-[901px]:[--f-muted:#8da4a8] min-[901px]:[--f-border:#2b3d43] min-[901px]:[--f-focus:#caede7] min-[901px]:[--f-ring:rgba(202,237,231,0.18)] min-[901px]:[--f-err:#ff9c8a]";
