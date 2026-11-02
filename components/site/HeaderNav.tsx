@@ -31,8 +31,21 @@ export default function HeaderNav({ groups }: { groups: readonly NavGroup[] }) {
     const onPointer = (e: PointerEvent) => {
       if (!navRef.current?.contains(e.target as Node)) setOpen(null);
     };
+    // On the document, not the nav: Safari doesn't focus a button that was
+    // tapped or hovered open, so Escape would never reach the nav.
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (navRef.current?.contains(document.activeElement)) {
+        buttons.current[open]?.focus();
+      }
+      setOpen(null);
+    };
     document.addEventListener("pointerdown", onPointer);
-    return () => document.removeEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
   }, [open]);
 
   return (
@@ -40,18 +53,15 @@ export default function HeaderNav({ groups }: { groups: readonly NavGroup[] }) {
       ref={navRef}
       aria-label="Primary"
       className="hidden min-[961px]:block"
-      onKeyDown={(e) => {
-        if (e.key === "Escape" && open !== null) {
-          buttons.current[open]?.focus();
-          setOpen(null);
-        }
+      onClick={(e) => {
+        if ((e.target as Element).closest("a")) setOpen(null);
       }}
     >
-      <ul className="flex items-center gap-[10px] min-[961px]:max-[1200px]:gap-0.5">
+      <ul className="flex items-center gap-0.5 min-[1201px]:gap-[10px]">
         {groups.map((group, i) => {
           const active = isActive(group, path);
           const linkClass = cn(
-            "relative flex h-[43px] items-center gap-1.5 px-[14px] font-sans text-[15px] font-medium transition-colors duration-200 after:absolute after:right-[14px] after:bottom-1.5 after:left-[14px] after:h-px after:origin-left after:bg-ink after:transition-transform after:duration-250",
+            "relative flex h-[43px] items-center gap-1.5 px-[14px] font-sans text-[15px] font-medium transition-colors duration-200 pointer-coarse:h-11 after:absolute after:right-[14px] after:bottom-1.5 after:left-[14px] after:h-px after:origin-left after:bg-ink after:transition-transform after:duration-250",
             active
               ? "text-ink after:scale-x-100"
               : "text-body after:scale-x-0 hover:text-ink hover:after:scale-x-100",
@@ -120,9 +130,6 @@ export default function HeaderNav({ groups }: { groups: readonly NavGroup[] }) {
                 )}
               >
                 <div
-                  onClick={(e) => {
-                    if ((e.target as Element).closest("a")) setOpen(null);
-                  }}
                   className={cn(
                     "rounded-2xl border border-line-strong bg-canvas p-2.5 shadow-[0_22px_50px_rgba(6,14,18,0.14)]",
                     group.columns.length > 1 ? "w-[440px]" : "min-w-[240px]",
@@ -157,7 +164,7 @@ export default function HeaderNav({ groups }: { groups: readonly NavGroup[] }) {
                   {group.footerLink ? (
                     <Link
                       href={group.footerLink.href}
-                      className="mt-1 block rounded-[10px] px-3 py-2.5 text-[14px] font-medium text-body transition-colors hover:bg-card hover:text-ink"
+                      className="mt-1 block rounded-[10px] px-3 py-2.5 text-[14px] font-medium text-body transition-colors pointer-coarse:py-3 hover:bg-card hover:text-ink"
                     >
                       {group.footerLink.label} →
                     </Link>

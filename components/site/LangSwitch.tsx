@@ -32,7 +32,7 @@ export default function LangSwitch({
             lang={target}
             aria-current={active ? "true" : undefined}
             className={cn(
-              "flex h-11 items-center px-2 font-mono text-[13px] font-medium uppercase transition-colors duration-200",
+              "flex h-11 items-center px-2 font-mono text-[13px] font-medium uppercase transition-colors duration-200 pointer-coarse:min-w-11",
               active ? "text-ink" : "text-body hover:text-ink",
             )}
           >

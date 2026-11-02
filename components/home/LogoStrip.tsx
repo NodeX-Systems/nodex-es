@@ -57,7 +57,12 @@ export default function LogoStrip({
     const layout = () => {
       const imgs = Array.from(el.querySelectorAll("img")).slice(0, LOGOS.length);
       const logosWidth = imgs.reduce((sum, img) => sum + img.getBoundingClientRect().width, 0);
-      const gap = Math.max(MIN_GAP, (root.clientWidth - logosWidth) / LOGOS.length);
+      // A strip is never wider than the screen. Capping the measurement means
+      // a container that somehow grew with the list cannot feed the gap back
+      // into itself (the root has inline-size containment, this is the net).
+      const width = Math.min(root.clientWidth, window.innerWidth);
+      const gap = Math.max(MIN_GAP, (width - logosWidth) / LOGOS.length);
+      if (!Number.isFinite(gap)) return;
       el.style.setProperty("--gap", `${gap}px`);
       const copyWidth = logosWidth + gap * LOGOS.length;
       anim?.effect?.updateTiming({ duration: (copyWidth / PX_PER_SECOND) * 1000 });
@@ -104,7 +109,10 @@ export default function LogoStrip({
           {label}
         </p>
       ) : null}
-      <div className="min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+      {/* contain-inline-size: the w-max list never counts towards the width of
+          this box, so no grid track or flex row can grow with the logos (and
+          with them the gap measured from this box). */}
+      <div className="contain-inline-size max-w-full min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
         <ul ref={track} className="flex w-max items-center">
           {[...LOGOS, ...LOGOS].map((logo, i) => (
             <li

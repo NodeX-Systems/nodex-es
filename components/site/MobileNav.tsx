@@ -45,10 +45,18 @@ export default function MobileNav({
         buttonRef.current?.focus();
       }
     };
+    // The hamburger disappears at 961px (a tablet turned sideways, a resized
+    // window): close, or the scroll lock would outlive the menu.
+    const desktop = window.matchMedia("(min-width: 961px)");
+    const onDesktop = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
+    };
     document.addEventListener("keydown", onKey);
+    desktop.addEventListener("change", onDesktop);
     return () => {
       html.style.overflow = previous;
       document.removeEventListener("keydown", onKey);
+      desktop.removeEventListener("change", onDesktop);
     };
   }, [open]);
 
@@ -86,7 +94,7 @@ export default function MobileNav({
           if ((e.target as Element).closest("a[href]")) setOpen(false);
         }}
         className={cn(
-          "fixed inset-x-0 top-[var(--hh)] bottom-0 z-[29] overflow-y-auto bg-canvas px-[var(--hpad)] pt-2 pb-10 transition-opacity duration-200",
+          "fixed inset-x-0 top-[var(--hh)] bottom-0 z-[29] overflow-y-auto overscroll-contain bg-canvas px-[var(--hpad)] pt-2 pb-10 transition-opacity duration-200",
           open ? "visible opacity-100" : "invisible opacity-0",
         )}
       >

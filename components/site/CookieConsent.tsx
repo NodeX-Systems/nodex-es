@@ -3,8 +3,9 @@
 import { GoogleAnalytics } from "@next/third-parties/google";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 import {
   CONSENT_COOKIE,
   CONSENT_OPEN_EVENT,
@@ -96,29 +97,77 @@ export default function CookieConsent() {
 
   const showBanner = choice === null || (choice !== undefined && reopened);
 
+  // While the banner is up, publish the room it takes (its height plus its
+  // offset from the bottom): the footer pads itself with --consent-h so the
+  // legal links can scroll clear of it, and scroll-padding keeps focused
+  // controls from ending up underneath.
+  const bannerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const banner = bannerRef.current;
+    if (!banner) return;
+    const root = document.documentElement;
+    const sync = () => {
+      const bottom = parseFloat(getComputedStyle(banner).bottom) || 0;
+      const room = `${banner.offsetHeight + bottom}px`;
+      root.style.setProperty("--consent-h", room);
+      root.style.scrollPaddingBottom = room;
+    };
+    sync();
+    const observer = new ResizeObserver(sync);
+    observer.observe(banner);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty("--consent-h");
+      root.style.removeProperty("scroll-padding-bottom");
+    };
+  }, [showBanner]);
+
   return (
     <>
       {choice === "granted" ? <GoogleAnalytics gaId={GA_MEASUREMENT_ID} /> : null}
       {showBanner ? (
         <div
+          ref={bannerRef}
           role="dialog"
           aria-label={t.more}
-          className="fixed right-4 bottom-4 z-[150] w-[400px] max-w-[calc(100vw-32px)] rounded-[18px] border border-line-strong bg-card/[0.97] px-4 py-3.5 shadow-[0_18px_50px_-18px_rgba(14,21,22,0.35)] max-[700px]:inset-x-3 max-[700px]:bottom-4 max-[700px]:w-auto max-[700px]:max-w-none max-[700px]:px-3.5 max-[700px]:py-3"
+          className={cn(
+            // Over page content (z-20 at most), under the header (30) and its
+            // mobile menu panel (29), so an open menu is never covered.
+            "fixed z-[25] flex flex-wrap items-center gap-x-4 gap-y-3 rounded-[18px] border border-line-strong bg-card/[0.97] shadow-[0_18px_50px_-18px_rgba(14,21,22,0.35)]",
+            // A card in the bottom-right corner...
+            "right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] w-[400px] max-w-[calc(100vw-32px)] px-4 py-3.5",
+            // ...and a full-width bar on phones and on short (landscape)
+            // screens, where text and buttons sit side by side if they fit.
+            "max-[700px]:inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] max-[700px]:w-auto max-[700px]:max-w-none max-[700px]:px-3.5 max-[700px]:py-3",
+            "[@media(max-height:500px)]:inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] [@media(max-height:500px)]:w-auto [@media(max-height:500px)]:max-w-none",
+          )}
         >
-          <p className="text-[13.5px] leading-[1.5] text-body max-[700px]:text-[12.5px]">
+          <p className="flex-[1_1_280px] text-[13.5px] leading-[1.5] text-body max-[700px]:text-[13px]">
             {t.text}{" "}
             <Link
               href={ROUTES[locale].cookies}
-              className="text-ink underline underline-offset-2"
+              className="py-2 whitespace-nowrap text-ink underline underline-offset-2"
             >
               {t.more}
             </Link>
           </p>
-          <div className="mt-3 flex gap-2">
-            <Button size="cta" icon={null} onClick={() => decide("denied")} variant="outline">
+          {/* Equal columns on phones, so both labels fit at 320px */}
+          <div className="flex gap-2 max-[700px]:grid max-[700px]:grid-cols-2">
+            <Button
+              size="cta"
+              icon={null}
+              className="max-[700px]:w-full"
+              onClick={() => decide("denied")}
+              variant="outline"
+            >
               {t.reject}
             </Button>
-            <Button size="cta" icon={null} onClick={() => decide("granted")}>
+            <Button
+              size="cta"
+              icon={null}
+              className="max-[700px]:w-full"
+              onClick={() => decide("granted")}
+            >
               {t.accept}
             </Button>
           </div>
