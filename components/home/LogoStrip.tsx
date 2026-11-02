@@ -124,7 +124,7 @@ export default function LogoStrip({
                 src={logo.src}
                 alt={i >= LOGOS.length ? "" : logo.name}
                 style={{ "--k": logo.k } as CSSProperties}
-                className="h-[calc(26px*var(--k))] w-auto invert opacity-70 max-[700px]:h-[calc(20px*var(--k))]"
+                className="h-[calc(26px*var(--k))] w-auto invert opacity-70 max-[701px]:h-[calc(20px*var(--k))]"
               />
             </li>
           ))}

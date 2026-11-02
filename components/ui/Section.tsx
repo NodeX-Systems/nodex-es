@@ -23,7 +23,7 @@ export default function Section({
   const classes = cn(
     divider && "border-t border-line",
     className ??
-      "py-[clamp(48px,calc(var(--cqi)*6),96px)] max-[700px]:py-16",
+      "py-[clamp(48px,calc(var(--cqi)*6),96px)] max-[701px]:py-16",
   );
   const inner = <Container>{children}</Container>;
   if (!reveal) {

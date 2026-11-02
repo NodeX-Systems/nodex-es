@@ -7,7 +7,10 @@ import { ArrowIcon } from "@/components/ui/icons";
 //   primary: solid near-black; lifts 2px on hover with a soft mint halo
 //   outline: hairline; fills with ink from left to right on hover
 //   light:   solid white-ish, for dark panels
-// Sizes: md 48px, cta 42px (header), mini 36px.
+// Sizes: md 48px, cta 44px (header; 42px from 961px up with a mouse), mini
+// 36px (44px on touch screens). Heights are minimums and the label wraps
+// instead of overflowing, so a long label in a narrow column grows the pill
+// rather than cutting it off.
 
 type Variant = "primary" | "outline" | "light";
 type Size = "md" | "cta" | "mini";
@@ -18,11 +21,12 @@ export function buttonClass(
   className?: string,
 ) {
   return cn(
-    "group/btn relative isolate inline-flex shrink-0 items-center justify-center gap-2.5 overflow-hidden rounded-full font-sans font-semibold whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform] duration-250 ease-in-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60",
-    size === "md" && "h-12 px-6 text-[15px]",
+    "group/btn relative isolate inline-flex max-w-full shrink-0 items-center justify-center gap-2.5 overflow-hidden rounded-full text-center font-sans font-semibold transition-[background-color,color,border-color,box-shadow,transform] duration-250 ease-in-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60",
+    size === "md" && "min-h-12 px-6 py-2.5 text-[15px]",
     size === "cta" &&
-      "h-10 px-4 text-[13.5px] min-[961px]:h-[42px] min-[961px]:px-[18px] min-[961px]:text-[14px]",
-    size === "mini" && "h-9 px-3.5 text-[13px] font-medium",
+      "min-h-11 px-4 py-2 text-[13.5px] min-[961px]:min-h-[42px] min-[961px]:px-[18px] min-[961px]:text-[14px] min-[961px]:pointer-coarse:min-h-11",
+    size === "mini" &&
+      "min-h-9 px-3.5 py-1.5 text-[13px] font-medium pointer-coarse:min-h-11",
     variant === "primary" &&
       "bg-ink text-canvas hover:bg-black hover:shadow-[0_10px_30px_-10px_rgba(202,237,231,0.45)]",
     variant === "outline" &&

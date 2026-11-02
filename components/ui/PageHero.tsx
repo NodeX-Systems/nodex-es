@@ -30,14 +30,14 @@ export default function PageHero({
   return (
     <section
       className={cn(
-        "pt-[clamp(32px,calc(var(--cqi)*5),72px)] pb-[clamp(32px,calc(var(--cqi)*4),56px)] max-[700px]:pt-10 max-[700px]:pb-12",
+        "pt-[clamp(32px,calc(var(--cqi)*5),72px)] pb-[clamp(32px,calc(var(--cqi)*4),56px)] max-[701px]:pt-10 max-[701px]:pb-12",
         className,
       )}
     >
       <Container>
         <div
           className={cn(
-            "grid items-center gap-x-[clamp(28px,calc(var(--cqi)*5),80px)] gap-y-10",
+            "grid grid-cols-1 items-center gap-x-[clamp(28px,calc(var(--cqi)*5),80px)] gap-y-10",
             media && "min-[861px]:grid-cols-[1.15fr_0.85fr]",
           )}
         >
@@ -60,12 +60,12 @@ export default function PageHero({
             ) : null}
           </div>
           {media ? (
-            <div className="grid h-[clamp(220px,calc(var(--cqi)*24),340px)] grid-cols-[1.3fr_1fr_1fr] gap-2 max-[860px]:h-[180px] max-[520px]:h-[150px] max-[520px]:grid-cols-2">
+            <div className="grid h-[clamp(220px,calc(var(--cqi)*24),340px)] grid-cols-[1.3fr_1fr_1fr] gap-2 max-[861px]:h-[180px] max-[521px]:h-[150px] max-[521px]:grid-cols-2">
               {media.map((variant, i) => (
                 <Media
                   key={i}
                   variant={variant}
-                  className={cn("h-full", i === 2 && "max-[520px]:hidden")}
+                  className={cn("h-full", i === 2 && "max-[521px]:hidden")}
                 />
               ))}
             </div>

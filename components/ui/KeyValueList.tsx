@@ -16,7 +16,7 @@ export default function KeyValueList({
       {rows.map((row, i) => (
         <div
           key={i}
-          className="grid gap-1 border-b border-line py-5 sm:grid-cols-[minmax(120px,200px)_1fr] sm:gap-8"
+          className="grid grid-cols-1 gap-1 border-b border-line py-5 sm:grid-cols-[minmax(120px,200px)_minmax(0,1fr)] sm:gap-8"
         >
           <dt
             className={
@@ -27,7 +27,7 @@ export default function KeyValueList({
           >
             {row.label}
           </dt>
-          <dd className="text-[17px] leading-[1.55] text-body max-[1024px]:text-[16px]">
+          <dd className="text-[17px] leading-[1.55] text-body max-[1025px]:text-[16px]">
             {row.value}
           </dd>
         </div>

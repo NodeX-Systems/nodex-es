@@ -75,6 +75,8 @@
   }
 }
 
+/* The max-width queries below are inclusive ("up to 700px"). Tailwind's
+   max-[N] variant is exclusive (< N), so components write max-[701px]. */
 :root {
   --cqi: 1vw;
   /* Edge-to-edge gutter for the header and hero */
@@ -97,9 +99,10 @@
   html {
     scroll-padding-top: 96px;
   }
-  @media (max-width: 760px) {
+  /* Anchors land 16px under the sticky header, whose height --hh follows */
+  @media (max-width: 960px) {
     html {
-      scroll-padding-top: 80px;
+      scroll-padding-top: calc(var(--hh) + 16px);
     }
   }
 
@@ -110,12 +113,28 @@
 
   body {
     @apply bg-canvas font-sans text-[17px] leading-[1.55] font-normal text-ink antialiased;
+    /* A word wider than its column breaks instead of running out of it. It
+       only touches words that do not fit, so wider layouts are unchanged. */
+    overflow-wrap: break-word;
   }
 
   button:not(:disabled),
   [role="button"],
   summary {
     cursor: pointer;
+  }
+
+  /* No double-tap zoom on controls, so quick repeated taps (carousel
+     arrows, accordions) never zoom the page. */
+  a,
+  button,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role="button"] {
+    touch-action: manipulation;
   }
 
   summary {
