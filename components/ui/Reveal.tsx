@@ -1,62 +1,77 @@
-import type { ElementType, ReactNode } from "react";
-import InView from "@/components/ui/InView";
-import { cn } from "@/lib/cn";
+"use client";
 
-// Scroll-triggered entrance animation, replacing AOS (`data-aos="..."` +
-// `data-aos-duration`). Same effects, offsets and easing the site used:
-// AOS.init({ offset: 100, easing: "ease-in-out", once: false,
-// disable: "mobile" }). Below the md breakpoint, and for users who prefer
-// reduced motion, elements render in their final state with no animation.
-export type RevealEffect =
-  | "fade-left"
-  | "fade-right"
-  | "zoom-in-up"
-  | "zoom-in-left"
-  | "zoom-out";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ElementType,
+  type ReactNode,
+} from "react";
 
-const HIDDEN: Record<RevealEffect, string> = {
-  "fade-right": "opacity-0 -translate-x-[100px]",
-  "fade-left": "opacity-0 translate-x-[100px]",
-  "zoom-in-up": "opacity-0 translate-y-[100px] scale-60",
-  "zoom-in-left": "opacity-0 translate-x-[100px] scale-60",
-  "zoom-out": "opacity-0 scale-120",
-};
-
-const SHOWN =
-  "data-inview:opacity-100 data-inview:translate-none data-inview:scale-none";
-
-const STATIC =
-  "max-md:opacity-100 max-md:translate-none max-md:scale-none max-md:transition-none " +
-  "motion-reduce:opacity-100 motion-reduce:translate-none motion-reduce:scale-none motion-reduce:transition-none";
+// Scroll entrance animations (spec A1/A2). Content is visible without JS and
+// with reduced motion; with motion, elements that start below the fold are
+// hidden on mount and revealed when their top crosses the threshold.
+//   kind="section": fade + 18px rise, threshold 92% of the viewport height
+//   kind="item":    fade + 24px rise, 90 ms stagger by `index`, threshold 90%
+type State = "idle" | "hide" | "in";
 
 export default function Reveal({
-  effect,
-  duration = 400,
-  as = "div",
+  as,
+  kind = "section",
+  index = 0,
   className,
   children,
+  ...rest
 }: {
-  effect: RevealEffect;
-  /** Transition duration in ms (the old data-aos-duration). */
-  duration?: number;
   as?: ElementType;
+  kind?: "section" | "item";
+  index?: number;
   className?: string;
-  children?: ReactNode;
-}) {
+  children: ReactNode;
+} & Record<string, unknown>) {
+  const Tag = (as ?? "div") as ElementType;
+  const ref = useRef<HTMLElement>(null);
+  const [state, setState] = useState<State>("idle");
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const threshold = kind === "section" ? 0.92 : 0.9;
+    const reached = () =>
+      el.getBoundingClientRect().top < window.innerHeight * threshold;
+
+    // Only what starts below the first screen is hidden.
+    if (reached()) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setState("hide");
+
+    const check = () => {
+      if (!reached()) return;
+      setState("in");
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+    window.addEventListener("scroll", check, { passive: true });
+    window.addEventListener("resize", check, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", check);
+      window.removeEventListener("resize", check);
+    };
+  }, [kind]);
+
+  const attr = kind === "section" ? "data-rv" : "data-st";
   return (
-    <InView
-      as={as}
-      rootMargin="0px 0px -100px 0px"
-      className={cn(
-        "transition-[opacity,translate,scale] ease-in-out",
-        HIDDEN[effect],
-        SHOWN,
-        STATIC,
-        className,
-      )}
-      style={{ transitionDuration: `${duration}ms` }}
+    <Tag
+      ref={ref}
+      {...{ [attr]: state === "hide" ? "hide" : state === "in" ? "in" : undefined }}
+      style={kind === "item" ? ({ "--i": index } as CSSProperties) : undefined}
+      className={className}
+      {...rest}
     >
       {children}
-    </InView>
+    </Tag>
   );
 }

@@ -1,87 +1,86 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
-import { ArrowRightIcon } from "@/components/ui/icons";
 import { cn } from "@/lib/cn";
+import { ArrowIcon } from "@/components/ui/icons";
 
-// The template's .theme-btn1 / .theme-btn2 / .theme-btn3: two pseudo-element
-// layers sweep in on hover (::before scales in from the left, ::after grows
-// vertically on top of it) and the label turns white.
-//
-// NOTE: .theme-btn2 also had `margin-left: 20px` (0 below 768px); that is
-// layout, not part of the button, so add `md:ml-5` at the call site.
-export type ButtonVariant = "primary" | "outline" | "cta";
+// Pill buttons (spec §1.5 / §4.1).
+//   primary: solid near-black; lifts 2px on hover with a soft mint halo
+//   outline: hairline; fills with ink from left to right on hover
+//   light:   solid white-ish, for dark panels
+// Sizes: md 48px, cta 42px (header), mini 36px.
 
-const BASE =
-  "relative z-1 inline-block cursor-pointer appearance-none overflow-hidden rounded-[4px] align-middle text-base leading-4 font-bold capitalize text-ink outline-none! hover:text-white " +
-  "before:absolute before:inset-0 before:-z-1 before:origin-left before:scale-x-0 before:transition-all before:delay-100 before:duration-500 before:ease-in-out hover:before:scale-x-100 " +
-  "after:absolute after:inset-0 after:-z-1 after:origin-right after:scale-y-0 after:transition-all after:ease-linear hover:after:origin-bottom hover:after:scale-y-100 hover:after:duration-400";
+type Variant = "primary" | "outline" | "light";
+type Size = "md" | "cta" | "mini";
 
-const VARIANTS: Record<ButtonVariant, string> = {
-  // .theme-btn1
-  primary:
-    "bg-mint px-[22px] py-[18px] before:bg-brand after:bg-forest after:duration-600",
-  // .theme-btn2
-  outline:
-    "border-2 border-ink bg-transparent px-[22px] py-4 transition-all duration-400 before:bg-mint after:bg-forest after:duration-400",
-  // .theme-btn3
-  cta: "bg-mint px-[22px] py-[18px] before:bg-brand after:bg-mint after:duration-600",
-};
-
-export function buttonClass(variant: ButtonVariant = "primary", className?: string) {
-  return cn(BASE, VARIANTS[variant], className);
+export function buttonClass(
+  variant: Variant = "primary",
+  size: Size = "md",
+  className?: string,
+) {
+  return cn(
+    "group/btn relative isolate inline-flex shrink-0 items-center justify-center gap-2.5 overflow-hidden rounded-full font-sans font-semibold whitespace-nowrap transition-[background-color,color,border-color,box-shadow,transform] duration-250 ease-in-out hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-60",
+    size === "md" && "h-12 px-6 text-[15px]",
+    size === "cta" &&
+      "h-10 px-4 text-[13.5px] min-[961px]:h-[42px] min-[961px]:px-[18px] min-[961px]:text-[14px]",
+    size === "mini" && "h-9 px-3.5 text-[13px] font-medium",
+    variant === "primary" &&
+      "bg-ink text-canvas hover:bg-black hover:shadow-[0_10px_30px_-10px_rgba(202,237,231,0.45)]",
+    variant === "outline" &&
+      "border border-line-strong text-ink before:absolute before:inset-0 before:-z-10 before:origin-left before:scale-x-0 before:bg-ink before:transition-transform before:duration-350 before:ease-brand hover:border-ink hover:text-canvas hover:before:scale-x-100",
+    variant === "light" &&
+      "bg-paper-dark text-void-dark hover:bg-white hover:shadow-[0_10px_30px_-10px_rgba(202,237,231,0.45)]",
+    className,
+  );
 }
 
-function ButtonIcon({ icon }: { icon: ReactNode }) {
+function Arrow({ icon }: { icon: ReactNode | null | undefined }) {
+  if (icon === null) return null;
   return (
-    <span className="relative ml-1 inline-block -rotate-45 text-[16px] transition-all duration-400 ease-linear">
-      {icon}
+    <span className="inline-flex text-[10px] transition-transform duration-250 ease-brand group-hover/btn:translate-x-1">
+      {icon ?? <ArrowIcon />}
     </span>
   );
 }
 
-type OwnProps = {
-  variant?: ButtonVariant;
-  /** Trailing icon, rotated -45deg like the original. Defaults to an arrow; pass null for none. */
-  icon?: ReactNode;
+type Shared = {
+  variant?: Variant;
+  size?: Size;
+  /** Trailing icon; defaults to an arrow, `null` removes it. */
+  icon?: ReactNode | null;
 };
 
-export function ButtonLink({
-  variant = "primary",
-  icon = <ArrowRightIcon />,
+export function Button({
+  variant,
+  size,
+  icon,
   className,
   children,
   ...props
-}: OwnProps & ComponentProps<typeof Link>) {
+}: Shared & ComponentProps<"button">) {
   return (
-    <Link className={buttonClass(variant, className)} {...props}>
+    <button
+      type="button"
+      className={buttonClass(variant, size, className)}
+      {...props}
+    >
       {children}
-      {icon != null && (
-        <>
-          {" "}
-          <ButtonIcon icon={icon} />
-        </>
-      )}
-    </Link>
+      <Arrow icon={icon} />
+    </button>
   );
 }
 
-export function Button({
-  variant = "primary",
-  icon = <ArrowRightIcon />,
+export function ButtonLink({
+  variant,
+  size,
+  icon,
   className,
   children,
-  type = "button",
   ...props
-}: OwnProps & ComponentProps<"button">) {
+}: Shared & ComponentProps<typeof Link>) {
   return (
-    <button type={type} className={buttonClass(variant, className)} {...props}>
+    <Link className={buttonClass(variant, size, className)} {...props}>
       {children}
-      {icon != null && (
-        <>
-          {" "}
-          <ButtonIcon icon={icon} />
-        </>
-      )}
-    </button>
+      <Arrow icon={icon} />
+    </Link>
   );
 }

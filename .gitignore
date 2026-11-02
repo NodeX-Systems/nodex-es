@@ -11,3 +11,6 @@ _backup
 
 # pnpm is the package manager (Vercel picks it from pnpm-lock.yaml)
 package-lock.json
+
+# Unlicensed provisional asset bundle (the extracted files live in public/assets/img)
+assets_PROVISIONALES_sin_licencia.zip

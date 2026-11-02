@@ -1,77 +1,429 @@
 @import "tailwindcss";
 
 /*
-  Design tokens carried over from the original template's main.css
-  (--vtc-* custom properties). Everything else is plain Tailwind utilities
-  in the components themselves.
+  Design tokens and type scale from "Especificación visual y funcional"
+  (light theme, Geist headlines, Inter text, IBM Plex Mono labels).
+
+  `--cqi` is 1% of the usable page width (the prototype's container unit).
+  It defaults to 1vw and ViewportUnits.tsx refines it to exclude the
+  scrollbar, so clamp() sizes match the measured values.
 */
 @theme {
-  /* Bootstrap 5 breakpoints, so the responsive layout keeps the exact
-     same switch points the site was designed against. */
-  --breakpoint-sm: 576px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 992px;
-  --breakpoint-xl: 1200px;
-  --breakpoint-2xl: 1400px;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist), var(--font-inter), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 
-  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+  /* Light theme */
+  --color-canvas: #f4f6f5; /* --void: page background, dropdowns */
+  --color-night: #ecf0ef; /* alternate background */
+  --color-card: #ffffff; /* --panel: cards, quote, cookie notice */
+  --color-line: #dde4e3; /* section separators */
+  --color-line-strong: #c3cfcd; /* --line2: card/button/input borders */
+  --color-ink: #0b1317; /* --paper: text, primary button */
+  --color-body: #55676b; /* --mist: secondary text */
+  --color-accent: #2c7e6a; /* --mint: highlighted headline word */
+  --color-brand: #1e5e56; /* --frost: labels, focus, hover borders */
+  --color-faint: #7d8d90; /* second half of two-tone headlines */
+  --color-err: #b42318;
+  --color-err-text: #9a1c12;
+  --color-err-bg: #fef3f2;
+  --color-err-line: #f2b8ae;
 
-  --color-ink: #2d3435; /* headings / dark text */
-  --color-brand: #276957; /* primary green */
-  --color-mint: #9adcc5; /* accent green */
-  --color-forest: #1a3d35; /* deep green (button hover fill) */
-  --color-body: #637074; /* paragraph text on light backgrounds */
-  --color-body-light: #ccccd5; /* paragraph text on dark backgrounds */
-  --color-reboot: #212529; /* default body text color */
-  --color-surface: #f9f9f9;
-  --color-surface-2: #f2f4f4;
-  --color-line: #e4e9ea;
-  --color-line-2: #d0d8d8;
-  --color-faq: #f5f3f4;
+  /* Dark islands (closing card, video stage, contact form panel) */
+  --color-void-dark: #020405;
+  --color-panel: #0b1317;
+  --color-line-dark: #18252a;
+  --color-line2-dark: #2b3d43;
+  --color-mist-dark: #8da4a8;
+  --color-frost-dark: #caede7;
+  --color-paper-dark: #f2f4f3;
+  --color-mint: #9adcc5;
+  --color-err-dark: #ff9c8a;
 
-  --ease-back-out: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-brand: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-stage: cubic-bezier(0.65, 0, 0.2, 1);
 
-  /* The template's `transition: all .4s` used the CSS default `ease`, not
-     Tailwind's default curve. */
-  --default-transition-timing-function: ease;
+  --animate-flow: flow 2.6s linear infinite;
+  --animate-flow-v: flow-v 2.6s linear infinite;
+  --animate-mic: mic 1.2s ease-out infinite;
 
-  --animate-marquee: marquee 40s linear infinite;
-  --animate-spin-slow: spin 1.5s linear infinite;
-
-  @keyframes marquee {
+  @keyframes flow {
     from {
-      transform: translateX(0);
+      left: 0;
     }
     to {
-      transform: translateX(-50%);
+      left: 110%;
+    }
+  }
+  @keyframes flow-v {
+    from {
+      top: 0;
+    }
+    to {
+      top: 110%;
+    }
+  }
+  @keyframes mic {
+    from {
+      transform: scale(0.9);
+      opacity: 0.8;
+    }
+    to {
+      transform: scale(1.25);
+      opacity: 0;
     }
   }
 }
 
+:root {
+  --cqi: 1vw;
+  /* Edge-to-edge gutter for the header and hero */
+  --hpad: clamp(20px, calc(var(--cqi) * 2.6), 48px);
+  /* Sticky header height incl. its 1px border */
+  --hh: 85px;
+}
+@media (max-width: 960px) {
+  :root {
+    --hh: 77px;
+  }
+}
+@media (max-width: 700px) {
+  :root {
+    --hh: 65px;
+  }
+}
+
 @layer base {
-  /* Scroll-reveal elements start shifted sideways, past the viewport edge.
-     `clip` (unlike `hidden`) never makes body a scroll container, so that
-     off-screen start state can't be panned to. */
+  html {
+    scroll-padding-top: 96px;
+  }
+  @media (max-width: 760px) {
+    html {
+      scroll-padding-top: 80px;
+    }
+  }
+
   html,
   body {
-    overflow-x: hidden;
     overflow-x: clip;
   }
 
   body {
-    @apply bg-white font-sans text-base leading-[26px] font-normal text-reboot antialiased;
-  }
-
-  /* Tailwind's preflight makes images block-level; the whole layout was
-     built on inline images (centered with text-align, sitting next to
-     text), so restore that. */
-  img {
-    display: inline-block;
-    max-height: 100%;
+    @apply bg-canvas font-sans text-[17px] leading-[1.55] font-normal text-ink antialiased;
   }
 
   button:not(:disabled),
-  [role="button"] {
+  [role="button"],
+  summary {
     cursor: pointer;
+  }
+
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  ::selection {
+    background: var(--color-mint);
+    color: var(--color-ink);
+  }
+
+  /* Global focus ring */
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Type scale (spec §1.2). Sizes as clamp() over --cqi.             */
+/* ---------------------------------------------------------------- */
+
+@utility t-display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+@utility t-h1-home {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(34px, min(calc(var(--cqi) * 6.55), 10svh), 96px);
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  @media (max-width: 700px) {
+    font-size: clamp(34px, calc(var(--cqi) * 11), 46px);
+  }
+}
+
+@utility t-h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(36px, calc(var(--cqi) * 4.6), 72px);
+  line-height: 0.96;
+  letter-spacing: -0.058em;
+}
+
+@utility t-h1-contact {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(32px, calc(var(--cqi) * 3.6), 56px);
+  line-height: 1;
+  letter-spacing: -0.058em;
+  @media (max-width: 900px) {
+    font-size: clamp(30px, calc(var(--cqi) * 8.5), 40px);
+  }
+}
+
+@utility t-h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(34px, calc(var(--cqi) * 4.6), 72px);
+  line-height: 1;
+  letter-spacing: -0.053em;
+}
+
+@utility t-h2-speak {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: max(32px, calc(var(--cqi) * 4.2));
+  line-height: 1;
+  letter-spacing: -0.053em;
+}
+
+/* Split blocks (.h2b): How we work, FAQ, Security, FDE */
+@utility t-h2b {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(32px, calc(var(--cqi) * 4), 60px);
+  line-height: 1;
+  letter-spacing: -0.053em;
+}
+
+@utility t-h2-close {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(32px, calc(var(--cqi) * 3.8), 58px);
+  line-height: 0.98;
+  letter-spacing: -0.053em;
+  @media (max-width: 700px) {
+    font-size: 27px;
+  }
+}
+
+@utility t-h2-format {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(30px, calc(var(--cqi) * 3), 44px);
+  line-height: 1;
+  letter-spacing: -0.053em;
+  @media (max-width: 560px) {
+    font-size: 26px;
+  }
+}
+
+/* Insights, news, partners (.h2s) */
+@utility t-h2s {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(26px, calc(var(--cqi) * 2.6), 38px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+@utility t-h2-legal {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(28px, calc(var(--cqi) * 3), 40px);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+@utility t-h3-case {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(26px, calc(var(--cqi) * 2.8), 40px);
+  line-height: 1.1;
+  letter-spacing: -0.038em;
+  @media (max-width: 700px) {
+    font-size: 18px;
+  }
+}
+
+@utility t-next {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: max(26px, calc(var(--cqi) * 3.4));
+  line-height: 1.02;
+  letter-spacing: -0.048em;
+}
+
+@utility t-step {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: max(24px, calc(var(--cqi) * 2.2));
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+@utility t-pcard {
+  font-family: var(--font-display);
+  font-weight: 600;
+  text-wrap: balance;
+  font-size: clamp(22px, calc(var(--cqi) * 2), 28px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+
+@utility t-stat {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: max(48px, calc(var(--cqi) * 6));
+  line-height: 0.9;
+  letter-spacing: -0.063em;
+  @media (max-width: 700px) {
+    font-size: 40px;
+  }
+}
+
+@utility t-stat-unit {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(22px, calc(var(--cqi) * 2.2), 32px);
+  line-height: 1;
+  letter-spacing: -0.043em;
+  @media (max-width: 700px) {
+    font-size: 20px;
+  }
+}
+
+@utility t-faq-q {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.3;
+  letter-spacing: -0.023em;
+  @media (max-width: 1024px) {
+    font-size: 17px;
+  }
+}
+
+@utility t-sub {
+  font-size: clamp(17px, calc(var(--cqi) * 1.5), 20px);
+  line-height: 1.55;
+  @media (max-width: 700px) {
+    font-size: 16.5px;
+    line-height: 1.5;
+  }
+}
+
+/* Spanish runs ~15% longer: the design keeps the English line count by
+   scaling hero/lead copy down a little (the prototype's fitES(), as fixed
+   per-language sizes). */
+:lang(es) .t-sub {
+  font-size: calc(clamp(17px, calc(var(--cqi) * 1.5), 20px) * 0.93);
+}
+
+@utility t-lead {
+  font-size: 20px;
+  line-height: 1.55;
+  @media (max-width: 1024px) {
+    font-size: 17px;
+  }
+}
+
+@utility t-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------- */
+/* Motion (spec §3). All gated by prefers-reduced-motion.            */
+/* ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* A1: sections below the first screen */
+  [data-rv="hide"] {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  [data-rv] {
+    transition:
+      opacity 0.8s ease,
+      transform 0.8s var(--ease-brand);
+  }
+  /* A2: staggered items */
+  [data-st="hide"] {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  [data-st] {
+    transition:
+      opacity 0.7s var(--ease-brand),
+      transform 0.7s var(--ease-brand);
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+}
+
+@keyframes step-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1.16) translate(-2%, -1.5%);
   }
 }

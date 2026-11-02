@@ -133,3 +133,96 @@ export function BarsStaggeredIcon(props: IconProps) {
     </Svg>
   );
 }
+
+// Stroke icons for the v2 design (24px grid, currentColor, 1.5px line).
+function Stroke({ className, children, ...props }: IconProps) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={`inline-block size-[1em] shrink-0 ${className ?? ""}`}
+      {...props}
+    >
+      {children}
+    </svg>
+  );
+}
+
+export function PlusIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M12 5v14M5 12h14" />
+    </Stroke>
+  );
+}
+
+export function MinusIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M5 12h14" />
+    </Stroke>
+  );
+}
+
+export function ChevronDownIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Stroke>
+  );
+}
+
+export function ArrowUpRightIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M7 17 17 7M8 7h9v9" />
+    </Stroke>
+  );
+}
+
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M19 12H5M11 6l-6 6 6 6" />
+    </Stroke>
+  );
+}
+
+export function TickIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="m5 12.5 4.5 4.5L19 7.5" />
+    </Stroke>
+  );
+}
+
+export function MenuIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M4 8h16M4 16h16" />
+    </Stroke>
+  );
+}
+
+export function CloseIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="m6 6 12 12M18 6 6 18" />
+    </Stroke>
+  );
+}
+
+export function ArrowIcon(props: IconProps) {
+  return (
+    <Stroke {...props}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </Stroke>
+  );
+}

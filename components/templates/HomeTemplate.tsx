@@ -1,379 +1,271 @@
-import Header from "@/components/Header";
-import MobileNav from "@/components/MobileNav";
-import Footer from "@/components/Footer";
+import Link from "next/link";
+import ClientVideos, { type ClientPanel } from "@/components/home/ClientVideos";
 import HomeHero from "@/components/home/HomeHero";
-import LogoMarquee from "@/components/home/LogoMarquee";
-import WhyNodex from "@/components/home/WhyNodex";
-import ServicesSection from "@/components/home/ServicesSection";
-import HowWeWork from "@/components/home/HowWeWork";
-import HomeContact from "@/components/home/HomeContact";
-import { ROUTES, type Locale } from "@/lib/routes";
-import serviceImg1 from "@/public/assets/img/service/service-img1.png";
-import serviceImg2 from "@/public/assets/img/service/service-img2.png";
-import serviceImg3 from "@/public/assets/img/service/service-img3.png";
-import serviceIcon1 from "@/public/assets/img/icons/service1-icon1.png";
-import serviceIcon2 from "@/public/assets/img/icons/service1-icon2.png";
-import serviceIcon3 from "@/public/assets/img/icons/service1-icon3.png";
-import workIcon1 from "@/public/assets/img/icons/work1-icon1.png";
-import workIcon2 from "@/public/assets/img/icons/work1-icon2.png";
-import workIcon3 from "@/public/assets/img/icons/work1-icon3.png";
+import { ButtonLink } from "@/components/ui/Button";
+import CountUp from "@/components/ui/CountUp";
+import CtaBanner from "@/components/ui/CtaBanner";
+import Eyebrow from "@/components/ui/Eyebrow";
+import { ArrowIcon } from "@/components/ui/icons";
+import Media from "@/components/ui/Media";
+import Reveal from "@/components/ui/Reveal";
+import Section from "@/components/ui/Section";
+import { getCase, pick, type Case } from "@/lib/cases";
+import { FEATURES } from "@/lib/features";
+import { NAV_LABELS, ROUTES, type Locale } from "@/lib/routes";
 
 const CONTENT = {
   es: {
-    heroSpan: "Equipo IT Senior · Integración Inmediata",
-    heroH1: (
-      <>
-        Escalamos Tecnología con Criterio, Sin Sobredimensionar tu
-        Equipo
-      </>
-    ),
-    heroP: (
-      <>
-        NodeX es un equipo IT senior que se integra en tu negocio de
-        forma inmediata, dando soporte tanto al desarrollo operativo
-        del día a día como a la construcción de productos y
-        plataformas estratégicas.
-      </>
-    ),
-    heroBtn1: "Hablemos",
-    heroBtn2: "Quiénes Somos",
-    choose1Stat1: "Perfiles Senior",
-    choose1Stat2: "Para integrarse",
-    choose1Span: "Por qué NodeX",
-    choose1H2: "Nos Integramos, Desbloqueamos y Escalamos con tu Negocio",
-    choose1P: (
-      <>
-        Somos el equipo de desarrollo especialista que entra en
-        acción cuando necesitas experiencia, capacidad y ejecución
-        inmediata.
-      </>
-    ),
-    choose1List1: "Integración sin fricciones",
-    choose1List2: "Desbloquea cuellos de botella técnicos",
-    choose1List3: "Seniority real desde el primer día",
-    choose1List4: "Previene bloqueos técnicos",
-    choose1List5: "Escala sin aumentar plantilla",
-    choose1List6: "Modelo de equipo flexible y ad hoc",
-    choose1Btn: "Quiénes Somos",
-    serviceSpan: "Nuestros Productos",
-    serviceH2: "Tres Formas en que NodeX Aporta Valor a tu Negocio",
-    serviceP: (
-      <>
-        NodeX estructura su oferta en torno a tres productos
-        principales — cada uno diseñado para generar impacto
-        inmediato, desde el desarrollo embebido hasta la ingeniería
-        de plataformas estratégicas.
-      </>
-    ),
-    service1Title: "Equipo integrado",
-    service1P: (
-      <>
-        Ingenieros senior integrados en tu equipo, entregando
-        desde el primer día sin fricción de incorporación.
-      </>
-    ),
-    service2Title: "Producto adhoc",
-    service2P: (
-      <>
-        Arquitectura, diseño y construcción de productos y
-        plataformas estratégicas preparadas para escalar.
-      </>
-    ),
-    service3Title: "Consultoria tech",
-    service3P: (
-      <>
-        Leads con experiencia que aportan criterio, dirección y
-        supervisión arquitectónica a tus decisiones
-        tecnológicas.
-      </>
-    ),
-    serviceBtn: "Habla con Nuestro Equipo",
-    workSpan: "Cómo Trabajamos",
-    workH2: "Desarrollo Especialista, Criterio y Ejecución Inmediata",
-    workP: (
-      <>
-        Entramos cuando se forman cuellos de botella, cuando las
-        decisiones técnicas requieren seniority y cuando la
-        velocidad de ejecución importa.
-      </>
-    ),
-    work1Title: "Integración Sin Fricciones",
-    work1P: (
-      <>
-        Nos integramos en tu equipo sin overhead de
-        onboarding — output inmediato, sin fricción.
-      </>
-    ),
-    work2Title: "Seniority Real",
-    work2P: (
-      <>
-        Perfiles senior desde el primer día. Criterio
-        técnico, visión arquitectónica y experiencia en cada
-        proyecto.
-      </>
-    ),
-    work3Title: "Flexible y Ad Hoc",
-    work3P: (
-      <>
-        Contrata un equipo completo o un especialista. Escala
-        según tus necesidades reales, sin un contrato fijo.
-      </>
-    ),
-    contactSpan: "Contáctanos",
-    contactH2: "Hablemos de tus Retos Tecnológicos",
-    contactP: (
-      <>
-        Si enfrentas cuellos de botella técnicos, necesitas escalar
-        tu equipo o quieres construir un producto estratégico — nos
-        encantaría entender tu contexto y ayudarte.
-      </>
-    ),
-    contactEmailLabel: "Escríbenos",
-    formH3: "Envíanos un Mensaje",
-    formP: (
-      <>
-        Cuéntanos sobre tu proyecto o necesidades de equipo y te
-        responderemos pronto.
-      </>
-    ),
-    placeholderName: "Nombre",
-    placeholderEmail: "Email",
-    placeholderPhone: "Teléfono",
-    placeholderMessage: "Mensaje",
-    formSubmit: "Enviar",
+    heroLead: "Ingeniería de IA empresarial para un impacto de negocio ",
+    heroAccent: "medible",
+    heroTail: ".",
+    heroSub:
+      "Forward Deployed Engineers que se integran en tu equipo, trabajan en tu stack y se quedan hasta que la IA funciona en producción.",
+    speakTitle: "Nuestros clientes hablan por nosotros",
+    readFull: "Leer la historia completa",
+    prevStory: "Historia anterior",
+    nextStory: "Historia siguiente",
+    counter: "Historia {i} de {n}",
+    statement: "No asesoramos desde fuera. Construimos desde dentro.",
+    stats: [
+      { value: 7, suffix: "", unit: "países", text: "Clientes atendidos por Nodex" },
+      { value: 20, suffix: "+", unit: "empresas", text: "Con soluciones implementadas por Nodex" },
+      { value: 7, suffix: "+", unit: "años", text: "Experiencia mínima de cada ingeniero" },
+    ],
+    buildTitle: "IA preparada para producción.",
+    servicesBtn: "Servicios",
+    capabilities: [
+      { title: "Agentes de IA", text: "Agentes por dominio y departamento, cada uno con sus propias herramientas." },
+      { title: "RAG con fuentes verificables", text: "Cada respuesta enlazada al documento y la versión de la que procede." },
+      { title: "Guardrails y revisión humana", text: "Un paso de revisión antes de que nada escriba en tus sistemas." },
+      { title: "Orquestación de LLMs", text: "LangGraph, MCP y skills modulares, conectados de forma segura a tus servicios." },
+      { title: "Evaluación y monitorización", text: "Precisión, correcciones humanas, tiempo de ciclo y coste, medidos en producción." },
+      { title: "Plataformas de datos", text: "Pipelines, arquitectura de datos y modelos predictivos en los que la IA puede apoyarse." },
+    ],
+    workTitle: "Trabajo en producción",
+    allStories: "Todos los casos",
+    rows: [
+      { key: "services", label: "Servicios", lead: "Una forma de trabajar.", tail: "Cuatro formas de empezar." },
+      { key: "howWeWork", label: "Cómo trabajamos", lead: "Dentro de tu equipo", tail: "en una semana." },
+      { key: "about", label: "Nosotros", lead: "El equipo", tail: "detrás del trabajo." },
+      { key: "clientStories", label: "Casos de cliente", lead: "Trabajo de clientes.", tail: "En producción." },
+    ],
+    ctaTitle: "Habla de tu proyecto con un ingeniero senior.",
   },
   en: {
-    heroSpan: "Senior IT Team · Immediate Integration",
-    heroH1: (
-      <>
-        We Scale Technology With Criteria, Without Oversizing Your
-        Team
-      </>
-    ),
-    heroP: (
-      <>
-        NodeX is a senior IT team that integrates into your
-        business immediately, supporting both day-to-day
-        development and the construction of strategic products and
-        platforms.
-      </>
-    ),
-    heroBtn1: <>Let&apos;s Talk</>,
-    heroBtn2: "About Us",
-    choose1Stat1: "Senior Profiles",
-    choose1Stat2: "To Integrate",
-    choose1Span: "Why NodeX",
-    choose1H2: "We Integrate, Unblock and Scale With Your Business",
-    choose1P: (
-      <>
-        We are the specialist development team that steps in when
-        you need expertise, capacity and immediate execution.
-      </>
-    ),
-    choose1List1: "Frictionless Integration",
-    choose1List2: "Unblocks Tech Bottlenecks",
-    choose1List3: "Real Seniority From Day One",
-    choose1List4: "Prevents Technical Blockers",
-    choose1List5: "Scale Without Growing Headcount",
-    choose1List6: <>Flexible &amp; Ad Hoc Team Model</>,
-    choose1Btn: "About Us",
-    serviceSpan: "Our Products",
-    serviceH2: "Three Ways NodeX Delivers Value to Your Business",
-    serviceP: (
-      <>
-        NodeX structures its offering around three core products —
-        each designed to deliver immediate impact, from embedded
-        development to strategic platform engineering.
-      </>
-    ),
-    service1Title: "Embedded Development",
-    service1P: (
-      <>
-        Senior engineers integrated into your team, delivering
-        from day one with no ramp-up friction.
-      </>
-    ),
-    service2Title: "Platform Engineering",
-    service2P: (
-      <>
-        Architecture, design and construction of strategic
-        products and platforms built to scale.
-      </>
-    ),
-    service3Title: "Technical Leadership",
-    service3P: (
-      <>
-        Experienced leads who bring criteria, direction and
-        architectural oversight to your tech decisions.
-      </>
-    ),
-    serviceBtn: "Talk to Our Team",
-    workSpan: "How We Work",
-    workH2: <>Specialist Development, Criteria &amp; Immediate Execution</>,
-    workP: (
-      <>
-        We step in when bottlenecks form, when technical decisions
-        need seniority, and when speed of execution matters.
-      </>
-    ),
-    work1Title: "Frictionless Integration",
-    work1P: (
-      <>
-        We embed into your team without onboarding overhead —
-        immediate output, zero friction.
-      </>
-    ),
-    work2Title: "Real Seniority",
-    work2P: (
-      <>
-        Senior profiles from day one. Technical criteria,
-        architectural vision and experience in every
-        engagement.
-      </>
-    ),
-    work3Title: <>Flexible &amp; Ad Hoc</>,
-    work3P: (
-      <>
-        Engage us as a full team or a single specialist.
-        Scale according to your real needs, not a fixed
-        contract.
-      </>
-    ),
-    contactSpan: "Contact Us",
-    contactH2: <>Let&apos;s Talk About Your Technology Challenges</>,
-    contactP: (
-      <>
-        Whether you&apos;re facing technical bottlenecks, need to
-        scale your team, or want to build a strategic product —
-        we&apos;d love to understand your context and help.
-      </>
-    ),
-    contactEmailLabel: "Send me Mail",
-    formH3: "Send us a Message",
-    formP: (
-      <>
-        Tell us about your project or team needs and we&apos;ll
-        get back to you shortly.
-      </>
-    ),
-    placeholderName: "Name",
-    placeholderEmail: "Email",
-    placeholderPhone: "Phone",
-    placeholderMessage: "Message",
-    formSubmit: "Submit Now",
+    heroLead: "Engineering enterprise AI for ",
+    heroAccent: "measurable",
+    heroTail: " business impact.",
+    heroSub:
+      "Forward Deployed Engineers who join your team, work in your stack and stay until AI runs in production.",
+    speakTitle: "Our clients speak for us",
+    readFull: "Read the full story",
+    prevStory: "Previous story",
+    nextStory: "Next story",
+    counter: "Story {i} of {n}",
+    statement: "We don’t advise from the outside. We build from the inside.",
+    stats: [
+      { value: 7, suffix: "", unit: "countries", text: "Clients served by Nodex" },
+      { value: 20, suffix: "+", unit: "companies", text: "With solutions implemented by Nodex" },
+      { value: 7, suffix: "+", unit: "years", text: "Minimum experience of every engineer" },
+    ],
+    buildTitle: "AI built for production.",
+    servicesBtn: "Services",
+    capabilities: [
+      { title: "AI agents", text: "Agents per domain and department, each with its own tools." },
+      { title: "RAG with verifiable sources", text: "Every answer linked to the document and version it came from." },
+      { title: "Guardrails and human review", text: "A review step before anything writes to your systems." },
+      { title: "LLM orchestration", text: "LangGraph, MCP and modular skills, wired safely to your services." },
+      { title: "Evaluation and monitoring", text: "Accuracy, human corrections, cycle time and cost, tracked in production." },
+      { title: "Data platforms", text: "Pipelines, data architecture and predictive models AI can rely on." },
+    ],
+    workTitle: "Work in production",
+    allStories: "All client stories",
+    rows: [
+      { key: "services", label: "Services", lead: "One way of working.", tail: "Four ways to start." },
+      { key: "howWeWork", label: "How we work", lead: "Inside your team", tail: "in one week." },
+      { key: "about", label: "About", lead: "The team", tail: "behind the work." },
+      { key: "clientStories", label: "Client stories", lead: "Client work.", tail: "In production." },
+    ],
+    ctaTitle: "Discuss your project with a senior engineer.",
   },
 } as const;
 
+// Panels of the client stage: the cases that have a photo of their own.
+// Quotes are added once a client approves one (see ClientPanel).
+const STAGE_CASES: readonly Case["id"][] = ["saas", "bbva", "sonnedix", "vestel"];
+
 export default function HomeTemplate({ locale }: { locale: Locale }) {
-  const routes = ROUTES[locale];
-  const content = CONTENT[locale];
+  const t = CONTENT[locale];
+  const r = ROUTES[locale];
+  const featured = getCase("sonnedix");
 
   return (
     <>
-      <Header locale={locale} />
-      <MobileNav locale={locale} />
-
       <HomeHero
-        eyebrow={content.heroSpan}
-        title={content.heroH1}
-        text={content.heroP}
-        primary={{ href: routes.contact, label: content.heroBtn1 }}
-        secondary={{ href: routes.about, label: content.heroBtn2 }}
+        lead={t.heroLead}
+        accent={t.heroAccent}
+        tail={t.heroTail}
+        subtitle={t.heroSub}
       />
 
-      <LogoMarquee />
+      {FEATURES.clientVideos ? (
+        <section className="border-t border-line pt-[clamp(72px,calc(var(--cqi)*9),140px)] pb-[clamp(24px,calc(var(--cqi)*3),40px)] max-[700px]:pt-[72px] max-[700px]:pb-8">
+          <div className="mx-auto max-w-[1360px] px-10 max-[700px]:px-[18px]">
+            <h2 className="t-h2-speak mb-[clamp(24px,calc(var(--cqi)*3),48px)]">{t.speakTitle}</h2>
+          </div>
+          <ClientVideos
+            panels={STAGE_CASES.map((id): ClientPanel => {
+              const c = getCase(id);
+              return {
+                id,
+                image: c.media,
+                client: pick(c.client, locale),
+                headline: pick(c.title, locale),
+              };
+            })}
+            labels={{
+              prev: t.prevStory,
+              next: t.nextStory,
+              read: t.readFull,
+              href: r.clientStories,
+              counter: t.counter,
+            }}
+          />
+        </section>
+      ) : null}
 
-      <WhyNodex
-        stat1={content.choose1Stat1}
-        stat2={content.choose1Stat2}
-        eyebrow={content.choose1Span}
-        title={content.choose1H2}
-        text={content.choose1P}
-        items={[
-          content.choose1List1,
-          content.choose1List2,
-          content.choose1List3,
-          content.choose1List4,
-          content.choose1List5,
-          content.choose1List6,
-        ]}
-        button={{ href: routes.about, label: content.choose1Btn }}
+      {/* Statement + figures */}
+      <Section className="pt-[clamp(64px,calc(var(--cqi)*8),120px)] pb-[clamp(48px,calc(var(--cqi)*5),80px)] max-[700px]:py-[72px]">
+        <h2 className="t-h2 max-w-[1000px]">
+          {t.statement.split(". ")[0]}.{" "}
+          <span className="text-faint">{t.statement.split(". ")[1]}</span>
+        </h2>
+        {FEATURES.homeStats ? (
+          <ul className="mt-[clamp(32px,calc(var(--cqi)*4),64px)] grid gap-3 min-[701px]:grid-cols-3">
+            {t.stats.map((s, i) => (
+              <Reveal
+                as="li"
+                kind="item"
+                index={i}
+                key={s.unit}
+                className="flex min-h-[196px] flex-col justify-between rounded-2xl border border-line-strong bg-linear-to-b from-card to-canvas p-[clamp(18px,calc(var(--cqi)*2.4),30px)] max-[700px]:min-h-0 max-[700px]:gap-3 max-[700px]:px-4 max-[700px]:py-[18px]"
+              >
+                <p className="flex flex-wrap items-baseline gap-x-3">
+                  <b className="t-stat font-semibold">
+                    <CountUp value={s.value} suffix={s.suffix} />
+                  </b>
+                  <span className="t-stat-unit">{s.unit}</span>
+                </p>
+                <p className="text-[15px] leading-[1.45] text-body">{s.text}</p>
+              </Reveal>
+            ))}
+          </ul>
+        ) : null}
+      </Section>
+
+      {/* Built for production */}
+      <Section className="py-[clamp(64px,calc(var(--cqi)*8),120px)] max-[700px]:py-[72px]">
+        <div className="flex items-end justify-between gap-6">
+          <h2 className="t-h2">{t.buildTitle}</h2>
+          <ButtonLink href={r.services} variant="outline" className="max-[560px]:hidden">
+            {t.servicesBtn}
+          </ButtonLink>
+        </div>
+        <ul className="mt-[clamp(32px,calc(var(--cqi)*4),64px)] grid border-t border-l border-line-strong min-[561px]:grid-cols-2 min-[861px]:grid-cols-3">
+          {t.capabilities.map((c, i) => (
+            <Reveal
+              as="li"
+              kind="item"
+              index={i % 3}
+              key={c.title}
+              className="border-r border-b border-line-strong p-[clamp(20px,calc(var(--cqi)*2.2),32px)]"
+            >
+              <Eyebrow>{String(i + 1).padStart(2, "0")}</Eyebrow>
+              <h3 className="mt-10 font-display text-[clamp(20px,calc(var(--cqi)*1.6),24px)] font-semibold tracking-[-0.03em] text-ink">
+                {c.title}
+              </h3>
+              <p className="mt-2 max-w-[300px] text-[15px] leading-[1.5] text-body">
+                {c.text}
+              </p>
+            </Reveal>
+          ))}
+        </ul>
+        <div className="mt-8 min-[561px]:hidden">
+          <ButtonLink href={r.services} variant="outline">
+            {t.servicesBtn}
+          </ButtonLink>
+        </div>
+      </Section>
+
+      {/* Work in production (featured case) */}
+      <Section className="py-[clamp(64px,calc(var(--cqi)*8),120px)] max-[700px]:py-[72px]">
+        <div className="flex items-end justify-between gap-6">
+          <h2 className="t-h2">{t.workTitle}</h2>
+          <ButtonLink href={r.clientStories} variant="outline" className="max-[560px]:hidden">
+            {t.allStories}
+          </ButtonLink>
+        </div>
+        <Link
+          href={r.caseSonnedix}
+          className="group mt-[clamp(32px,calc(var(--cqi)*4),64px)] grid items-center gap-[clamp(24px,calc(var(--cqi)*4),64px)] min-[761px]:grid-cols-[1.45fr_1fr]"
+        >
+          <div className="overflow-hidden rounded-2xl">
+            <Media
+              variant={featured.media}
+              className="aspect-[16/10] rounded-none transition-transform duration-[1200ms] ease-brand group-hover:scale-[1.035]"
+            />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <Eyebrow className="inline">
+                {`${pick(featured.client, locale)} · ${pick(featured.sector, locale)}`}
+              </Eyebrow>
+              <span className="t-tag rounded-full border border-line-strong px-2.5 py-0.5 text-[11px] text-brand">
+                {featured.format}
+              </span>
+            </div>
+            <h3 className="t-h3-case mt-4 transition-colors duration-200 group-hover:text-brand">
+              {pick(featured.title, locale)}
+            </h3>
+          </div>
+        </Link>
+        <div className="mt-8 min-[561px]:hidden">
+          <ButtonLink href={r.clientStories} variant="outline">
+            {t.allStories}
+          </ButtonLink>
+        </div>
+      </Section>
+
+      {/* Next: index rows */}
+      <Section className="py-[clamp(40px,calc(var(--cqi)*5),80px)] max-[700px]:py-10">
+        <ul>
+          {t.rows.map((row) => (
+            <li key={row.key} className="border-b border-line first:border-t">
+              <Link
+                href={r[row.key]}
+                className="group/row grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-2 py-[clamp(20px,calc(var(--cqi)*2),32px)] transition-[padding] duration-300 ease-brand hover:pl-[14px] min-[701px]:grid-cols-[minmax(110px,180px)_1fr_auto]"
+              >
+                <Eyebrow className="col-span-2 min-[701px]:col-span-1">
+                  {row.label}
+                </Eyebrow>
+                <span className="t-next text-ink transition-colors duration-300">
+                  {row.lead} <span className="text-faint group-hover/row:text-ink">{row.tail}</span>
+                </span>
+                <span className="flex size-12 items-center justify-center rounded-full border border-line-strong text-[14px] text-ink transition-[background-color,color,transform] duration-250 ease-brand group-hover/row:-rotate-45 group-hover/row:border-ink group-hover/row:bg-ink group-hover/row:text-canvas max-[700px]:size-10">
+                  <ArrowIcon />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <CtaBanner
+        title={t.ctaTitle}
+        label={NAV_LABELS[locale].scopingCall}
+        href={r.contact}
+        variant="cyborg"
       />
-
-      <ServicesSection
-        eyebrow={content.serviceSpan}
-        title={content.serviceH2}
-        text={content.serviceP}
-        cards={[
-          {
-            image: serviceImg1,
-            icon: serviceIcon1,
-            href: routes.svcEmbedded,
-            title: content.service1Title,
-            text: content.service1P,
-          },
-          {
-            image: serviceImg2,
-            icon: serviceIcon2,
-            href: routes.svcPlatform,
-            title: content.service2Title,
-            text: content.service2P,
-          },
-          {
-            image: serviceImg3,
-            icon: serviceIcon3,
-            href: routes.svcLeadership,
-            title: content.service3Title,
-            text: content.service3P,
-          },
-        ]}
-        button={{ href: routes.contact, label: content.serviceBtn }}
-      />
-
-      <HowWeWork
-        eyebrow={content.workSpan}
-        title={content.workH2}
-        text={content.workP}
-        steps={[
-          {
-            icon: workIcon1,
-            href: routes.contact,
-            title: content.work1Title,
-            text: content.work1P,
-          },
-          {
-            icon: workIcon2,
-            href: routes.contact,
-            title: content.work2Title,
-            text: content.work2P,
-          },
-          {
-            icon: workIcon3,
-            href: routes.contact,
-            title: content.work3Title,
-            text: content.work3P,
-          },
-        ]}
-      />
-
-      <HomeContact
-        locale={locale}
-        eyebrow={content.contactSpan}
-        title={content.contactH2}
-        text={content.contactP}
-        emailLabel={content.contactEmailLabel}
-        formTitle={content.formH3}
-        formText={content.formP}
-        placeholders={{
-          name: content.placeholderName,
-          email: content.placeholderEmail,
-          phone: content.placeholderPhone,
-          message: content.placeholderMessage,
-        }}
-        submitLabel={content.formSubmit}
-      />
-
-      <Footer locale={locale} copyrightVariant="normal" />
     </>
   );
 }
