@@ -15,14 +15,15 @@ import { NAV_LABELS, ROUTES, type Locale } from "@/lib/routes";
 import logo from "@/public/assets/img/brand/nodex-logo-white.png";
 
 const linkClass = "text-[15px] text-ink transition-colors hover:text-body";
-// Touch layouts (phones, and coarse pointers where the open columns show) get
-// 44px rows; mouse layouts keep the compact ones.
+// Touch layouts get 44px hit areas: phones (Tailwind's max-[N] is exclusive, so
+// "up to 700px" is max-[701px], as in Container) and coarse pointers, which
+// also covers touch tablets where the open columns show. Mouse layouts above
+// 700px keep the compact rows.
 const columnLink = `${linkClass} pointer-coarse:flex pointer-coarse:min-h-11 pointer-coarse:items-center`;
-// The legal links' hit area is padded out to 44px; the negative margin cancels
-// the side padding so the text stays put and the 20px gaps still keep
-// neighbouring targets apart.
+// The negative margin cancels the side padding, so the text stays where it was
+// and the 20px gaps still keep neighbouring hit areas apart.
 const legalLink =
-  "text-[12.5px] text-body transition-colors hover:text-ink max-[700px]:-mx-2.5 max-[700px]:flex max-[700px]:min-h-11 max-[700px]:items-center max-[700px]:px-2.5 pointer-coarse:-mx-2.5 pointer-coarse:flex pointer-coarse:min-h-11 pointer-coarse:items-center pointer-coarse:px-2.5";
+  "text-[12.5px] text-body transition-colors hover:text-ink max-[701px]:-mx-2.5 max-[701px]:flex max-[701px]:min-h-11 max-[701px]:items-center max-[701px]:px-2.5 pointer-coarse:-mx-2.5 pointer-coarse:flex pointer-coarse:min-h-11 pointer-coarse:items-center pointer-coarse:px-2.5";
 
 // Claim + city + CTA, three link columns (accordions at <= 700px), socials
 // and the legal line.
@@ -38,8 +39,8 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
 
   return (
     <footer className="border-t border-line">
-      {/* --consent-h is set by CookieConsent while its banner is up, so the legal links can scroll clear of it */}
-      <Container className="pt-12 pb-[calc(2rem_+_var(--consent-h,0px))] max-[700px]:pt-10">
+      {/* While the cookie banner is up, CookieConsent sets --consent-h and the bottom padding grows by it, so the legal links can scroll clear of the banner */}
+      <Container className="pt-12 pb-[calc(2rem_+_var(--consent-h,0px))] max-[701px]:pt-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
           <p className="t-display max-w-[460px] text-[clamp(24px,calc(var(--cqi)*2.2),32px)] leading-[1.05] tracking-[-0.04em]">
             {l.tagline}
@@ -53,7 +54,7 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
         </div>
 
         {/* Desktop: open columns */}
-        <div className="mt-12 grid grid-cols-3 gap-x-8 gap-y-3 border-t border-line pt-8 max-[700px]:hidden">
+        <div className="mt-12 grid grid-cols-3 gap-x-8 gap-y-3 border-t border-line pt-8 max-[701px]:hidden">
           {columns.map((col) => (
             <nav key={col.title} aria-label={col.title}>
               <p className="t-tag mb-4 text-body pointer-coarse:mb-1.5">{col.title}</p>
@@ -71,7 +72,7 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
         </div>
 
         {/* Mobile: accordions, closed by default */}
-        <div className="mt-10 hidden border-t border-line max-[700px]:block">
+        <div className="mt-10 hidden border-t border-line max-[701px]:block">
           {columns.map((col) => (
             <details key={col.title} className="group/f border-b border-line">
               <summary className="t-tag flex h-12 items-center justify-between text-body">
@@ -122,7 +123,7 @@ export default function SiteFooter({ locale }: { locale: Locale }) {
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-5 max-[700px]:gap-y-0 pointer-coarse:gap-y-0">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-line pt-5 max-[701px]:gap-y-0 pointer-coarse:gap-y-0">
           <p className="text-[12.5px] text-body">
             © Copyright {years} Nodex. {l.rights}
           </p>

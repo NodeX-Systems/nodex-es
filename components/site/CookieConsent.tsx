@@ -138,11 +138,11 @@ export default function CookieConsent() {
             "right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] w-[400px] max-w-[calc(100vw-32px)] px-4 py-3.5",
             // ...and a full-width bar on phones and on short (landscape)
             // screens, where text and buttons sit side by side if they fit.
-            "max-[700px]:inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] max-[700px]:w-auto max-[700px]:max-w-none max-[700px]:px-3.5 max-[700px]:py-3",
+            "max-[701px]:inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] max-[701px]:w-auto max-[701px]:max-w-none max-[701px]:px-3.5 max-[701px]:py-3",
             "[@media(max-height:500px)]:inset-x-[max(0.75rem,env(safe-area-inset-left),env(safe-area-inset-right))] [@media(max-height:500px)]:w-auto [@media(max-height:500px)]:max-w-none",
           )}
         >
-          <p className="flex-[1_1_280px] text-[13.5px] leading-[1.5] text-body max-[700px]:text-[13px]">
+          <p className="flex-[1_1_280px] text-[13.5px] leading-[1.5] text-body max-[701px]:text-[13px]">
             {t.text}{" "}
             <Link
               href={ROUTES[locale].cookies}
@@ -151,12 +151,12 @@ export default function CookieConsent() {
               {t.more}
             </Link>
           </p>
-          {/* Equal columns on phones, so both labels fit at 320px */}
-          <div className="flex gap-2 max-[700px]:grid max-[700px]:grid-cols-2">
+          {/* Equal columns on phones; the labels stay on one line (they just reach into the padding) so both fit at 320px */}
+          <div className="flex gap-2 max-[701px]:grid max-[701px]:grid-cols-2">
             <Button
               size="cta"
               icon={null}
-              className="max-[700px]:w-full"
+              className="whitespace-nowrap max-[701px]:w-full"
               onClick={() => decide("denied")}
               variant="outline"
             >
@@ -165,7 +165,7 @@ export default function CookieConsent() {
             <Button
               size="cta"
               icon={null}
-              className="max-[700px]:w-full"
+              className="whitespace-nowrap max-[701px]:w-full"
               onClick={() => decide("granted")}
             >
               {t.accept}
