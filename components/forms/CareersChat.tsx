@@ -618,7 +618,16 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                   onChange={(e) => setConsent(e.target.checked)}
                   className="mt-0.5 size-[18px] shrink-0 accent-brand"
                 />
-                <span>{consent ? t.consentKept : t.consent}</span>
+                {/* Both texts share one grid cell so the label keeps the width of the
+                    longer one: ticking the box swaps the text without moving the checkbox. */}
+                <span className="grid">
+                  <span className={cn("col-start-1 row-start-1", consent && "invisible")}>
+                    {t.consent}
+                  </span>
+                  <span className={cn("col-start-1 row-start-1", !consent && "invisible")}>
+                    {t.consentKept}
+                  </span>
+                </span>
               </label>
               <p className="mt-1">
                 <Link href={r.privacy} className="inline-block py-1 underline underline-offset-2">
