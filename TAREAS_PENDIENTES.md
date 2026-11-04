@@ -8,6 +8,7 @@ Pendientes de la web v2 (rama `feature/new-landing`) antes de poder publicarla.
 - [ ] **Herramienta de calendario y su endpoint**, para activar el selector de hora.
   - Elegir la herramienta (Cal.com, HubSpot Meetings o similar) e informar el endpoint en `OPTIONAL_ENDPOINTS.booking` (`lib/constants.ts`).
   - Después, activar `callBooking` en `lib/features.ts`.
+- [ ] **Activar `careersChat`** (`lib/features.ts`, ver `FLAGS.md`) cuando se valide con legal el consentimiento del chat y el aviso del dictado por voz (Google en Chrome), y se confirme en n8n que un `last_name` vacío no rompe el workflow de Careers (el chat parte el nombre completo en nombre y apellidos).
 - [ ] **Revisión de textos**
   - Español.
   - Preguntas frecuentes (FAQ).

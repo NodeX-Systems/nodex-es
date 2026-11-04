@@ -19,6 +19,7 @@ export const FEATURES = {
   clientQuote: false, // contact / case quotes are placeholders
   formatOnePager: false, // "Download the one-pager (PDF)"
   callBooking: false, // time picker after the contact form (needs a calendar tool)
+  careersChat: false, // careers: application as a chat (classic form when off)
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

@@ -446,3 +446,58 @@
     transform: scale(1.16) translate(-2%, -1.5%);
   }
 }
+
+/* ---------------------------------------------------------------- */
+/* Careers chat (spec §3.3): new messages rise in, a question is     */
+/* preceded by typing dots. Nothing moves with reduced motion.       */
+/* ---------------------------------------------------------------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes tin {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@keyframes tdots {
+  0% {
+    opacity: 0.35;
+  }
+  40%,
+  80% {
+    opacity: 1;
+    height: 12px;
+  }
+  100% {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .chat-in {
+    animation: rise 0.45s var(--ease-brand) both;
+  }
+  .chat-opt {
+    animation: rise 0.4s var(--ease-brand) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+  .chat-typing::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 12px;
+    background: radial-gradient(circle, var(--color-body) 3px, transparent 3.6px) 0 50% / 15px 12px repeat-x;
+    animation: tdots 0.6s ease forwards;
+  }
+  .chat-typing > p {
+    animation: tin 0.35s 0.5s var(--ease-brand) both;
+  }
+}

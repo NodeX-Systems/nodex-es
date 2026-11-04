@@ -2,28 +2,17 @@
 
 import Link from "next/link";
 import { useCallback, useRef, useState, type FormEvent } from "react";
+import { AREAS, buildCareersBody, EMAIL_RE, submitCareers, type Profile } from "@/components/forms/careers";
 import FormPopup, { type PopupState } from "@/components/forms/FormPopup";
 import { Field, Input, lightFormVars, Select, Textarea } from "@/components/forms/fields";
 import { Button } from "@/components/ui/Button";
-import { track } from "@/lib/analytics";
 import { cn } from "@/lib/cn";
-import { CONTACT_EMAIL, FORM_ENDPOINTS } from "@/lib/constants";
+import { CONTACT_EMAIL } from "@/lib/constants";
 import { ROUTES, type Locale } from "@/lib/routes";
 
 // Job application as a plain form (profile -> area -> a few questions -> an
 // optional CV). Posts multipart FormData to the careers webhook; `role`,
 // `address` and `message` keep the shape the existing n8n flow expects.
-
-const AREAS = {
-  technical: {
-    en: ["AI & ML", "Backend", "Frontend", "Full stack", "Data", "Cloud & DevOps", "Other"],
-    es: ["IA y ML", "Backend", "Frontend", "Full stack", "Datos", "Cloud y DevOps", "Otro"],
-  },
-  nontechnical: {
-    en: ["Sales", "Marketing", "Operations", "People", "Finance", "Design", "Other"],
-    es: ["Ventas", "Marketing", "Operaciones", "Personas", "Finanzas", "Diseño", "Otro"],
-  },
-} as const;
 
 const COPY = {
   en: {
@@ -76,12 +65,10 @@ const COPY = {
   },
 } as const;
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-
 export default function CareersForm({ locale }: { locale: Locale }) {
   const t = COPY[locale];
   const r = ROUTES[locale];
-  const [profile, setProfile] = useState<"technical" | "nontechnical">("technical");
+  const [profile, setProfile] = useState<Profile>("technical");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [sending, setSending] = useState(false);
   const [popup, setPopup] = useState<PopupState>(null);
@@ -108,44 +95,31 @@ export default function CareersForm({ locale }: { locale: Locale }) {
       return;
     }
 
-    const body = new FormData();
-    body.set("first_name", get("first_name"));
-    body.set("last_name", get("last_name"));
-    body.set("email", get("email"));
-    body.set("phone", "");
-    body.set("address", get("address"));
-    body.set("role", `${profile === "technical" ? "Technical" : "Non-technical"} · ${get("area")}`);
-    body.set(
-      "message",
-      [
-        `About: ${get("about")}`,
-        `Link: ${get("link")}`,
-        `Proud of: ${get("proud")}`,
-        get("extra") ? `Anything else: ${get("extra")}` : "",
-      ]
-        .filter(Boolean)
-        .join("\n"),
-    );
     const cv = data.get("cv");
-    if (cv instanceof File && cv.size > 0) body.set("cv", cv);
+    const body = buildCareersBody({
+      firstName: get("first_name"),
+      lastName: get("last_name"),
+      email: get("email"),
+      address: get("address"),
+      profile,
+      area: get("area"),
+      about: get("about"),
+      link: get("link"),
+      proud: get("proud"),
+      extra: get("extra"),
+      cv: cv instanceof File ? cv : null,
+    });
 
     setSending(true);
-    try {
-      const res = await fetch(FORM_ENDPOINTS.careers, { method: "POST", body });
-      const json: { status?: string; error?: string } = res.ok ? await res.json() : {};
-      if (json.status === "ok") {
-        track("form_submit", { form: "careers" });
-        setPopup({ type: "ok", title: t.okTitle, message: t.okMsg });
-        form.reset();
-        setFileName(null);
-      } else {
-        setPopup({ type: "fail", title: t.failTitle, message: json.error || t.failMsg });
-      }
-    } catch {
-      setPopup({ type: "fail", title: t.failTitle, message: t.failMsg });
-    } finally {
-      setSending(false);
+    const result = await submitCareers(body);
+    if (result.ok) {
+      setPopup({ type: "ok", title: t.okTitle, message: t.okMsg });
+      form.reset();
+      setFileName(null);
+    } else {
+      setPopup({ type: "fail", title: t.failTitle, message: result.error || t.failMsg });
     }
+    setSending(false);
   }
 
   const areas = AREAS[profile][locale];
