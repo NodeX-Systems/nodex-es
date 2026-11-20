@@ -37,7 +37,7 @@ Si la flag está apagada la página llama a `notFound()`, desaparece del menú, 
 | Flag | Por defecto | Qué publica | Dónde se usa |
 | --- | --- | --- | --- |
 | `callBooking` | `false` | Selector de hora tras el formulario de Contact. Necesita además `OPTIONAL_ENDPOINTS.booking` en `lib/constants.ts` (herramienta de calendario) | `components/forms/ContactWizard.tsx`, `components/forms/CallPicker.tsx` |
-| `careersChat` | `false` | Candidatura de `/careers/` y `/es/careers/` como chat (`CareersChat.tsx`). Apagada, se muestra el formulario clásico (`CareersForm.tsx`). Ambos envían los mismos campos al mismo webhook (`components/forms/careers.ts`) | `components/templates/CareersTemplate.tsx` |
+| `careersChat` | `true` | Candidatura de `/careers/` y `/es/careers/` como chat (`CareersChat.tsx`), con flecha para volver a la pregunta anterior y un archivo opcional (CV, carta u otro) en la última pregunta. Apagada, se muestra el formulario clásico (`CareersForm.tsx`). Ambos envían los mismos campos al mismo webhook (`components/forms/careers.ts`); el archivo va siempre en el campo `cv` | `components/templates/CareersTemplate.tsx` |
 
 ## Otros interruptores (fuera de `FEATURES`)
 
@@ -47,4 +47,4 @@ Si la flag está apagada la página llama a `notFound()`, desaparece del menú, 
 
 ## Pendiente antes de encender
 
-Ver [`TAREAS_PENDIENTES.md`](TAREAS_PENDIENTES.md). En particular, `careersChat` no debe encenderse hasta validar con legal el consentimiento del chat y el aviso del dictado por voz.
+Ver [`TAREAS_PENDIENTES.md`](TAREAS_PENDIENTES.md). En particular, `careersChat` está encendida y sigue pendiente validar con legal el consentimiento del chat (incluido el archivo adjunto) y el aviso del dictado por voz, y que n8n valide el archivo en el servidor.

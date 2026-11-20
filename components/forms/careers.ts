@@ -17,7 +17,23 @@ export const AREAS = {
   },
 } as const;
 
-export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// The optional file (CV, cover letter...) is checked the same way in the chat
+// and in the classic form. This is only a courtesy to the person: the webhook
+// must validate type and size again on the server.
+export const FILE_ACCEPT = ".pdf,.doc,.docx,.ppt,.pptx,.png,.jpg,.jpeg";
+export const FILE_MAX_BYTES = 10 * 1024 * 1024;
+const FILE_RE = /\.(pdf|docx?|pptx?|png|jpe?g)$/i;
+
+export type FileProblem = "type" | "size" | "empty";
+
+export function fileProblem(f: File): FileProblem | null {
+  if (!FILE_RE.test(f.name)) return "type";
+  if (f.size === 0) return "empty";
+  if (f.size > FILE_MAX_BYTES) return "size";
+  return null;
+}
+
+export const EMAIL_RE =/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export type CareersValues = {
   firstName: string;

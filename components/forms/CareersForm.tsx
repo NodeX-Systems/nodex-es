@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useCallback, useRef, useState, type FormEvent } from "react";
-import { AREAS, buildCareersBody, EMAIL_RE, submitCareers, type Profile } from "@/components/forms/careers";
+import {
+  AREAS,
+  buildCareersBody,
+  EMAIL_RE,
+  FILE_ACCEPT,
+  fileProblem,
+  submitCareers,
+  type Profile,
+} from "@/components/forms/careers";
 import FormPopup, { type PopupState } from "@/components/forms/FormPopup";
 import { Field, Input, lightFormVars, Select, Textarea } from "@/components/forms/fields";
 import { Button } from "@/components/ui/Button";
@@ -27,7 +35,12 @@ const COPY = {
     proud: "Something you’re proud of",
     where: "Where are you based?",
     extra: "Anything else", optional: "(optional)",
-    cv: "Attach a CV", cvHint: "PDF · DOC", noFile: "No file chosen",
+    cv: "Attach a CV", cvHint: "PDF · DOC · PPT · PNG · JPG", noFile: "No file chosen",
+    file: {
+      type: "Upload a PDF, Word, PowerPoint, PNG or JPG file.",
+      size: "That file is over 10 MB. Try a smaller one.",
+      empty: "That file is empty. Pick another one.",
+    },
     consent: "I agree that Nodex keeps this application to consider me for a role.",
     privacy: "Privacy policy",
     delete: `You can ask us to delete it at any time: write to ${CONTACT_EMAIL}.`,
@@ -51,7 +64,12 @@ const COPY = {
     proud: "Algo de lo que estés orgulloso",
     where: "¿Dónde vives?",
     extra: "Algo más", optional: "(opcional)",
-    cv: "Adjuntar un CV", cvHint: "PDF · DOC", noFile: "Ningún archivo",
+    cv: "Adjuntar un CV", cvHint: "PDF · DOC · PPT · PNG · JPG", noFile: "Ningún archivo",
+    file: {
+      type: "Sube un archivo PDF, Word, PowerPoint, PNG o JPG.",
+      size: "Ese archivo pesa más de 10 MB. Prueba con uno más pequeño.",
+      empty: "Ese archivo está vacío. Elige otro.",
+    },
     consent: "Acepto que Nodex conserve esta candidatura para considerarme para un puesto.",
     privacy: "Política de privacidad",
     delete: `Puedes pedirnos que la borremos cuando quieras: escribe a ${CONTACT_EMAIL}.`,
@@ -73,6 +91,7 @@ export default function CareersForm({ locale }: { locale: Locale }) {
   const [sending, setSending] = useState(false);
   const [popup, setPopup] = useState<PopupState>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const closePopup = useCallback(() => setPopup(null), []);
 
@@ -116,6 +135,7 @@ export default function CareersForm({ locale }: { locale: Locale }) {
       setPopup({ type: "ok", title: t.okTitle, message: t.okMsg });
       form.reset();
       setFileName(null);
+      setFileError(null);
     } else {
       setPopup({ type: "fail", title: t.failTitle, message: result.error || t.failMsg });
     }
@@ -211,10 +231,27 @@ export default function CareersForm({ locale }: { locale: Locale }) {
             id="j-cv"
             name="cv"
             type="file"
-            accept=".pdf,.doc,.docx"
+            accept={FILE_ACCEPT}
+            aria-describedby={fileError ? "j-cv-error" : undefined}
             className="sr-only"
-            onChange={(e) => setFileName(e.currentTarget.files?.[0]?.name ?? null)}
+            onChange={(e) => {
+              const f = e.currentTarget.files?.[0];
+              const problem = f ? fileProblem(f) : null;
+              if (problem) {
+                e.currentTarget.value = "";
+                setFileName(null);
+                setFileError(t.file[problem]);
+                return;
+              }
+              setFileError(null);
+              setFileName(f?.name ?? null);
+            }}
           />
+          {fileError ? (
+            <p id="j-cv-error" role="alert" className="mt-1.5 text-[12.5px] font-medium text-err">
+              {fileError}
+            </p>
+          ) : null}
         </div>
 
         <div>

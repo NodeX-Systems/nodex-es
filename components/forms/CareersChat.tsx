@@ -6,6 +6,8 @@ import {
   AREAS,
   buildCareersBody,
   EMAIL_RE,
+  FILE_ACCEPT,
+  fileProblem,
   submitCareers,
   type Profile,
 } from "@/components/forms/careers";
@@ -20,16 +22,23 @@ import { ROUTES, type Locale } from "@/lib/routes";
 // at a time, fixed questions in a fixed order. Profile and area are buttons (or
 // typed), the rest is free text; the email is validated; a summary with an
 // "Edit" per answer comes before sending. It posts exactly the same fields as
-// the classic CareersForm (see components/forms/careers.ts).
+// the classic CareersForm (see components/forms/careers.ts). The last question
+// also takes one optional file (CV, cover letter...) through a paperclip, sent
+// as the same single `cv` field. The back arrow returns to the previous
+// question with its answer pre-filled; later answers are kept.
 
 type Step =
   | "profile" | "area" | "name" | "sentence" | "email" | "link" | "proud" | "place"
-  | "extra" | "cv" | "summary" | "sent";
+  | "extra" | "summary" | "sent";
 type TextKey = "name" | "sentence" | "email" | "link" | "proud" | "place" | "extra";
 
 const TEXT_ORDER: TextKey[] = ["name", "sentence", "email", "link", "proud", "place", "extra"];
-const FLOW: Step[] = ["profile", "area", ...TEXT_ORDER, "cv", "summary", "sent"];
-const isTextStep = (s: Step) => s !== "cv" && s !== "summary" && s !== "sent";
+const FLOW: Step[] = ["profile", "area", ...TEXT_ORDER, "summary", "sent"];
+const isTextStep = (s: Step) => s !== "summary" && s !== "sent";
+const isTextKey = (s: Step): s is TextKey => (TEXT_ORDER as readonly string[]).includes(s);
+
+const kb = (n: number) =>
+  n >= 1048576 ? `${(n / 1048576).toFixed(1).replace(".0", "")} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
 
 type Answers = {
   profile: Profile | null;
@@ -53,7 +62,8 @@ const EMPTY: Answers = {
 type Ctx = { who: string; profile: Profile };
 type Q = { kind: "q"; step: Step; who: string; profile: Profile; typing: boolean };
 type A = { kind: "a"; text: string };
-type NewItem = Q | A;
+type F = { kind: "f"; name: string; size: string };
+type NewItem = Q | A | F;
 type Item = NewItem & { id: number };
 type Meta = { kind: "error" | "info"; text: string } | null;
 
@@ -79,8 +89,7 @@ const COPY = {
           ? <>{b("Tell us about something you put in production that you’re proud of.")} What was your part?</>
           : <>{b("Tell us about a result you’re proud of.")} What was your part?</>,
       place: () => <>{b("Where are you based?")} City and time zone is enough.</>,
-      extra: () => <>Almost done. {b("Anything else we should know?")} Optional.</>,
-      cv: () => <>{b("Want to attach a CV?")} Optional. PDF or Word.</>,
+      extra: () => <>Last one, optional. {b("Anything else we should know?")} Write it here or attach your CV, a cover letter or any relevant file.</>,
       summary: () => <>That’s everything. {b("Check your answers before sending.")}</>,
       sent: () => null,
     },
@@ -90,14 +99,19 @@ const COPY = {
       extra: "Anything else", cv: "CV",
     },
     edit: "Edit", skip: "Skip", send: "Send application", sending: "Sending…", again: "Start again",
-    nothingElse: "Nothing else", noCv: "No CV", attach: "Attach a CV (PDF · DOC)",
-    phPick: "Type or pick above", phAnswer: "Type your answer", phExtra: "Type your answer, or skip",
+    nothingElse: "Nothing else",
+    attach: "Attach a file (PDF, Word, PowerPoint, PNG or JPG, 10 MB)", removeFile: "Remove file",
+    fileType: "Upload a PDF, Word, PowerPoint, PNG or JPG file.",
+    fileSize: "That file is over 10 MB. Try a smaller one.",
+    fileEmpty: "That file is empty. Pick another one.",
+    back: "Back to the previous question", backTitle: "Previous question",
+    phPick: "Type or pick above", phAnswer: "Type your answer", phExtra: "Write or attach",
     phEdit: "Type your new answer",
     yourAnswer: "Your answer", sendAnswer: "Send answer", dictate: "Dictate your answer",
     dictateTitle: "Dictate your answer. Uses your browser’s speech service.",
     progress: "Application progress",
-    consent: "I agree that Nodex keeps this conversation to consider me for a role.",
-    consentKept: "Kept to consider you for a role at Nodex.",
+    consent: "I agree that Nodex keeps this conversation and any file I attach to consider me for a role.",
+    consentKept: "This conversation and any file you attach are kept to consider you for a role at Nodex.",
     privacy: "Privacy policy", deleteIt: "Delete it",
     deleted: `Deleted from this browser. Already sent it? Write to ${CONTACT_EMAIL} and we’ll delete it.`,
     consentStart: "Tick the box below to start.",
@@ -140,8 +154,7 @@ const COPY = {
           ? <>{b("Cuéntanos algo que hayas puesto en producción y de lo que estés orgulloso.")} ¿Cuál fue tu parte?</>
           : <>{b("Cuéntanos un resultado del que estés orgulloso.")} ¿Cuál fue tu parte?</>,
       place: () => <>{b("¿Dónde vives?")} Con la ciudad y la zona horaria basta.</>,
-      extra: () => <>Casi terminamos. {b("¿Algo más que debamos saber?")} Opcional.</>,
-      cv: () => <>{b("¿Quieres adjuntar un CV?")} Opcional. PDF o Word.</>,
+      extra: () => <>La última, opcional. {b("¿Algo más que debamos saber?")} Escríbelo aquí o adjunta tu CV, una carta de presentación o cualquier archivo relevante.</>,
       summary: () => <>Esto es todo. {b("Revisa tus respuestas antes de enviar.")}</>,
       sent: () => null,
     },
@@ -151,14 +164,19 @@ const COPY = {
       extra: "Algo más", cv: "CV",
     },
     edit: "Editar", skip: "Saltar", send: "Enviar candidatura", sending: "Enviando…", again: "Empezar de nuevo",
-    nothingElse: "Nada más", noCv: "Sin CV", attach: "Adjuntar un CV (PDF · DOC)",
-    phPick: "Escribe o elige arriba", phAnswer: "Escribe tu respuesta", phExtra: "Escribe tu respuesta u omítela",
+    nothingElse: "Nada más",
+    attach: "Adjuntar un archivo (PDF, Word, PowerPoint, PNG o JPG, 10 MB)", removeFile: "Quitar archivo",
+    fileType: "Sube un archivo PDF, Word, PowerPoint, PNG o JPG.",
+    fileSize: "Ese archivo pesa más de 10 MB. Prueba con uno más pequeño.",
+    fileEmpty: "Ese archivo está vacío. Elige otro.",
+    back: "Volver a la pregunta anterior", backTitle: "Pregunta anterior",
+    phPick: "Escribe o elige arriba", phAnswer: "Escribe tu respuesta", phExtra: "Escribe o adjunta",
     phEdit: "Escribe tu nueva respuesta",
     yourAnswer: "Tu respuesta", sendAnswer: "Enviar respuesta", dictate: "Dictar tu respuesta",
     dictateTitle: "Dicta tu respuesta. Usa el servicio de voz de tu navegador.",
     progress: "Progreso de la candidatura",
-    consent: "Acepto que Nodex conserve esta conversación para considerarme para un puesto.",
-    consentKept: "Se conserva para considerarte para un puesto en Nodex.",
+    consent: "Acepto que Nodex conserve esta conversación y cualquier archivo que adjunte para considerarme para un puesto.",
+    consentKept: "Esta conversación y cualquier archivo que adjuntes se conservan para considerarte para un puesto en Nodex.",
     privacy: "Política de privacidad", deleteIt: "Bórrala",
     deleted: `Borrada de este navegador. ¿Ya la enviaste? Escribe a ${CONTACT_EMAIL} y la borramos.`,
     consentStart: "Marca la casilla de abajo para empezar.",
@@ -188,6 +206,50 @@ const COPY = {
 const pill =
   "inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong px-[18px] text-[15px] font-medium text-ink transition-[background-color,color,border-color,transform] duration-200 hover:border-ink hover:bg-ink hover:text-canvas active:scale-[0.96]";
 
+function ClipIcon({ className }: { className: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className={className}>
+      <path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9" />
+    </svg>
+  );
+}
+
+function FileChip({
+  name, size, onRemove, removeLabel, className,
+}: {
+  name: string; size?: string; onRemove?: () => void; removeLabel?: string; className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex max-w-full items-center gap-2 rounded-xl border border-line-strong bg-card py-1.5 pr-3 pl-3 text-[14px] text-ink",
+        onRemove && "pr-1.5",
+        className,
+      )}
+    >
+      <ClipIcon className="size-4 shrink-0 text-brand" />
+      <span translate="no" className="min-w-0 truncate">{name}</span>
+      {size ? <small className="shrink-0 text-body">{size}</small> : null}
+      {onRemove ? (
+        <button
+          type="button"
+          aria-label={removeLabel}
+          onClick={onRemove}
+          // 44px target; the negative margins keep the chip as tall as before.
+          className="-my-2 grid size-11 shrink-0 place-items-center rounded-lg text-[18px] leading-none text-body hover:bg-line hover:text-ink"
+        >
+          ×
+        </button>
+      ) : null}
+    </span>
+  );
+}
+
+// Round icon buttons in the answer box; they shrink to 38px on narrow screens
+// so back, clip, mic and send still leave room to type.
+const iconBtn =
+  "grid size-11 shrink-0 place-items-center rounded-[14px] border transition-[background-color,border-color,transform] duration-200 active:scale-[0.94] max-[520px]:size-[38px]";
+
 export default function CareersChat({ locale }: { locale: Locale }) {
   const t = COPY[locale];
   const r = ROUTES[locale];
@@ -198,7 +260,10 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   const [epoch, setEpoch] = useState(0);
   const [answers, setAnswers] = useState<Answers>(EMPTY);
   const [step, setStep] = useState<Step>("profile");
-  const [editing, setEditing] = useState<TextKey | "cv" | null>(null);
+  const [editing, setEditing] = useState<TextKey | null>(null);
+  // The file as it was when an edit started, so Back can cancel the edit
+  // without keeping a file that was attached or removed meanwhile.
+  const cvBeforeEdit = useRef<File | null>(null);
   const [consent, setConsent] = useState(false);
   const [text, setText] = useState("");
   const [meta, setMeta] = useState<Meta>(null);
@@ -208,6 +273,8 @@ export default function CareersChat({ locale }: { locale: Locale }) {
 
   const threadRef = useRef<HTMLDivElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const attRef = useRef<HTMLButtonElement>(null);
   // Nothing scrolls or takes focus until the person has answered something, so
   // opening the page never pops the keyboard or moves the viewport.
   const started = useRef(false);
@@ -236,23 +303,86 @@ export default function CareersChat({ locale }: { locale: Locale }) {
 
   // Stores an answer, shows it, and moves to the next question (or, when an
   // answer is being edited, straight back to the summary).
-  function accept<K extends Exclude<Step, "summary" | "sent">>(k: K, value: Answers[K], display: string) {
-    const a = { ...answers, [k]: value };
+  function accept<K extends Exclude<Step, "summary" | "sent">>(
+    k: K,
+    value: Answers[K],
+    display: string,
+    more: NewItem[] = [],
+  ) {
+    const a: Answers = { ...answers, [k]: value };
+    // A different profile means a different list of areas.
+    if (k === "profile" && answers.profile && answers.profile !== value) a.area = "";
     dictation.stop();
     started.current = true;
     setAnswers(a);
-    setText("");
     setMeta(null);
-    const items: NewItem[] = [{ kind: "a", text: display }];
+    const items: NewItem[] = display ? [{ kind: "a", text: display }, ...more] : [...more];
     if (editing) {
       setEditing(null);
       setStep("summary");
+      setText("");
     } else {
       const next = FLOW[FLOW.indexOf(k) + 1];
       if (next !== "summary") items.push(question(next, a));
       setStep(next);
+      // After going back, a question that was already answered comes pre-filled.
+      setText(isTextKey(next) ? a[next] : "");
     }
     push(items);
+  }
+
+  // Back arrow: rebuilds the thread up to the previous question with its answer
+  // in the box. Nothing already answered is discarded.
+  function rebuild(target: Step) {
+    const upTo = FLOW.indexOf(target);
+    const shown = (k: Step) =>
+      k === "profile" ? (answers.profile ? t[answers.profile] : "") : isTextKey(k) ? answers[k] : answers.area;
+    const items: Item[] = [];
+    FLOW.slice(0, upTo + 1).forEach((k, i) => {
+      items.push({
+        id: items.length, kind: "q", step: k, who: answers.name,
+        profile: answers.profile ?? "technical", typing: false,
+      });
+      if (i < upTo) items.push({ id: items.length, kind: "a", text: shown(k) });
+    });
+    setLog(items);
+    setStep(target);
+    setText(isTextKey(target) ? answers[target] : "");
+    setMeta(null);
+  }
+
+  function goBack() {
+    dictation.stop();
+    started.current = true;
+    setMeta(null);
+    if (editing) {
+      setAnswers((a) => ({ ...a, cv: cvBeforeEdit.current }));
+      setEditing(null);
+      setStep("summary");
+      setText("");
+      setLog((l) => (l[l.length - 1]?.kind === "q" ? l.slice(0, -1) : l));
+      return;
+    }
+    const i = FLOW.indexOf(step);
+    if (i >= 1) rebuild(FLOW[i - 1]);
+  }
+
+  // No focus is moved here: on a phone it would open the keyboard over the new
+  // chip and the send button, and a file alone is enough to send.
+  function pickFile(f: File | undefined) {
+    if (!f) return;
+    const problem = fileProblem(f);
+    if (problem) {
+      const text = { type: t.fileType, size: t.fileSize, empty: t.fileEmpty }[problem];
+      return setMeta({ kind: "error", text });
+    }
+    setAnswers((a) => ({ ...a, cv: f }));
+    setMeta(null);
+  }
+
+  function removeFile() {
+    setAnswers((a) => ({ ...a, cv: null }));
+    attRef.current?.focus({ preventScroll: true });
   }
 
   function pickProfile(p: Profile) {
@@ -273,8 +403,15 @@ export default function CareersChat({ locale }: { locale: Locale }) {
 
   function submitText() {
     const v = text.trim();
-    if (!v || !isTextStep(step)) return;
+    if (!isTextStep(step) || !(v || (step === "extra" && answers.cv))) return;
     dictation.stop();
+    if (step === "extra") {
+      const f = answers.cv;
+      return accept(
+        "extra", v, v || (f ? "" : t.nothingElse),
+        f ? [{ kind: "f", name: f.name, size: kb(f.size) }] : [],
+      );
+    }
     if (step === "profile") {
       if (!consent) return setMeta({ kind: "error", text: t.consentStart });
       const p = matchProfile(v);
@@ -298,13 +435,14 @@ export default function CareersChat({ locale }: { locale: Locale }) {
     }
   }
 
-  function edit(k: TextKey | "cv") {
+  function edit(k: TextKey) {
     dictation.stop();
     started.current = true;
+    cvBeforeEdit.current = answers.cv;
     setEditing(k);
     setStep(k);
     setMeta(null);
-    setText(k === "cv" ? "" : answers[k]);
+    setText(answers[k]);
     push([question(k, answers)]);
   }
 
@@ -395,6 +533,13 @@ export default function CareersChat({ locale }: { locale: Locale }) {
           {log.map((it, i) => {
             const old = done || i < lastQ;
             const key = `${epoch}-${it.id}`;
+            if (it.kind === "f") {
+              return (
+                <div key={key} className={cn("chat-in mt-3 transition-opacity duration-400", old && "opacity-50")}>
+                  <FileChip name={it.name} size={it.size} />
+                </div>
+              );
+            }
             if (it.kind === "a") {
               return (
                 <p
@@ -427,55 +572,30 @@ export default function CareersChat({ locale }: { locale: Locale }) {
 
           {step === "profile" || step === "area" ? (
             <div className="mt-4 flex flex-wrap gap-2">
-              {(step === "profile" ? (["technical", "nontechnical"] as const) : areaList).map((o, i) => (
-                <button
-                  key={o}
-                  type="button"
-                  className={cn(pill, "chat-opt")}
-                  style={{ "--i": i } as React.CSSProperties}
-                  onClick={() =>
-                    step === "profile" ? pickProfile(o as Profile) : accept("area", o, o)
-                  }
-                >
-                  {step === "profile" ? t[o as Profile] : o}
-                </button>
-              ))}
+              {(step === "profile" ? (["technical", "nontechnical"] as const) : areaList).map((o, i) => {
+                // After going back, the option chosen before stays highlighted.
+                const was = step === "profile" ? answers.profile === o : answers.area === o;
+                return (
+                  <button
+                    key={o}
+                    type="button"
+                    aria-current={was || undefined}
+                    className={cn(pill, "chat-opt", was && "border-brand text-brand")}
+                    style={{ "--i": i } as React.CSSProperties}
+                    onClick={() =>
+                      step === "profile" ? pickProfile(o as Profile) : accept("area", o, o)
+                    }
+                  >
+                    {step === "profile" ? t[o as Profile] : o}
+                  </button>
+                );
+              })}
             </div>
           ) : null}
 
-          {step === "extra" ? (
+          {step === "extra" && !answers.cv ? (
             <div className="mt-4 flex flex-wrap gap-2">
               <button type="button" className={cn(pill, "chat-opt")} onClick={() => accept("extra", "", t.nothingElse)}>
-                {t.skip}
-              </button>
-            </div>
-          ) : null}
-
-          {step === "cv" ? (
-            <div className="mt-4 flex flex-wrap gap-2">
-              <label
-                className={cn(
-                  pill,
-                  "chat-opt cursor-pointer has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-brand",
-                )}
-              >
-                {t.attach}
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  className="sr-only"
-                  onChange={(e) => {
-                    const f = e.currentTarget.files?.[0];
-                    if (f) accept("cv", f, f.name);
-                  }}
-                />
-              </label>
-              <button
-                type="button"
-                className={cn(pill, "chat-opt")}
-                style={{ "--i": 1 } as React.CSSProperties}
-                onClick={() => accept("cv", null, t.noCv)}
-              >
                 {t.skip}
               </button>
             </div>
@@ -498,7 +618,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                         size="mini"
                         icon={null}
                         aria-label={`${t.edit}: ${t.labels[row.key]}`}
-                        onClick={() => edit(row.key as TextKey | "cv")}
+                        onClick={() => edit(row.key === "cv" ? "extra" : (row.key as TextKey))}
                       >
                         {t.edit}
                       </Button>
@@ -548,7 +668,24 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <div className="flex items-end gap-2.5 rounded-[20px] border border-line-strong bg-card py-2 pr-2 pl-[18px] transition-[border-color,box-shadow] duration-200 focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(30,94,86,0.16)]">
+            {step === "extra" && answers.cv ? (
+              <div className="mb-2">
+                <FileChip name={answers.cv.name} onRemove={removeFile} removeLabel={t.removeFile} />
+              </div>
+            ) : null}
+            <div className="flex items-end gap-2.5 rounded-[20px] border border-line-strong bg-card p-2 transition-[border-color,box-shadow] duration-200 focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(30,94,86,0.16)] max-[520px]:gap-1.5 max-[520px]:p-1.5">
+              <button
+                type="button"
+                aria-label={t.back}
+                title={t.backTitle}
+                disabled={step === "profile" && !editing}
+                onClick={goBack}
+                className={cn(iconBtn, "border-line-strong text-ink hover:not-disabled:-translate-y-0.5 hover:not-disabled:border-brand disabled:cursor-not-allowed disabled:opacity-35")}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="size-[18px]">
+                  <path d="M19 12H5M11 18l-6-6 6-6" />
+                </svg>
+              </button>
               <label htmlFor="c-input" className="sr-only">
                 {t.yourAnswer}
               </label>
@@ -563,8 +700,39 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                   if (meta?.kind === "error") setMeta(null);
                 }}
                 onKeyDown={onKeyDown}
-                className="max-h-40 min-h-11 flex-1 resize-none border-0 bg-transparent py-[11px] font-sans text-[16px] text-ink outline-none placeholder:text-faint"
+                className="max-h-40 min-h-11 min-w-0 flex-1 resize-none border-0 bg-transparent px-1 py-[11px] font-sans text-[16px] text-ink outline-none placeholder:text-faint max-[520px]:min-h-[38px] max-[520px]:py-2"
               />
+              {step === "extra" ? (
+                <>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept={FILE_ACCEPT}
+                    tabIndex={-1}
+                    aria-hidden="true"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.currentTarget.files?.[0];
+                      e.currentTarget.value = "";
+                      pickFile(f);
+                    }}
+                  />
+                  <button
+                    ref={attRef}
+                    type="button"
+                    aria-label={t.attach}
+                    title={t.attach}
+                    onClick={() => fileRef.current?.click()}
+                    className={cn(
+                      iconBtn,
+                      "hover:-translate-y-0.5 hover:border-brand",
+                      answers.cv ? "border-brand text-brand" : "border-line-strong text-ink",
+                    )}
+                  >
+                    <ClipIcon className="size-[18px]" />
+                  </button>
+                </>
+              ) : null}
               <button
                 type="button"
                 aria-label={t.dictate}
@@ -572,7 +740,8 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                 aria-pressed={dictation.listening}
                 onClick={toggleMic}
                 className={cn(
-                  "relative grid size-11 shrink-0 place-items-center rounded-[14px] border transition-[background-color,border-color,transform] duration-200 active:scale-[0.94]",
+                  iconBtn,
+                  "relative",
                   dictation.listening
                     ? "border-brand bg-brand text-canvas after:absolute after:-inset-[5px] after:animate-mic after:rounded-[18px] after:border-2 after:border-brand after:content-[''] motion-reduce:after:animate-none"
                     : "border-line-strong text-ink hover:-translate-y-0.5 hover:border-brand",
@@ -586,9 +755,9 @@ export default function CareersChat({ locale }: { locale: Locale }) {
               <button
                 type="button"
                 aria-label={t.sendAnswer}
-                disabled={!text.trim()}
+                disabled={!(text.trim() || (step === "extra" && answers.cv))}
                 onClick={submitText}
-                className="size-11 shrink-0 rounded-[14px] bg-ink text-[18px] font-bold text-canvas transition-[transform,background-color] duration-150 hover:not-disabled:-translate-y-0.5 active:not-disabled:scale-[0.94] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-body"
+                className="size-11 shrink-0 rounded-[14px] bg-ink text-[18px] max-[520px]:size-[38px] font-bold text-canvas transition-[transform,background-color] duration-150 hover:not-disabled:-translate-y-0.5 active:not-disabled:scale-[0.94] disabled:cursor-not-allowed disabled:bg-line-strong disabled:text-body"
               >
                 ↑
               </button>

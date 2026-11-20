@@ -8,7 +8,8 @@ Pendientes de la web v2 (rama `feature/new-landing`) antes de poder publicarla.
 - [ ] **Herramienta de calendario y su endpoint**, para activar el selector de hora.
   - Elegir la herramienta (Cal.com, HubSpot Meetings o similar) e informar el endpoint en `OPTIONAL_ENDPOINTS.booking` (`lib/constants.ts`).
   - Después, activar `callBooking` en `lib/features.ts`.
-- [ ] **Activar `careersChat`** (`lib/features.ts`, ver `FLAGS.md`) cuando se valide con legal el consentimiento del chat y el aviso del dictado por voz (Google en Chrome), y se confirme en n8n que un `last_name` vacío no rompe el workflow de Careers (el chat parte el nombre completo en nombre y apellidos).
+- [ ] **Validar `careersChat`** (ya está en `true` en `lib/features.ts`, ver `FLAGS.md`): con legal, el consentimiento del chat (hoy solo habla de "esta conversación", y la última pregunta invita a adjuntar un archivo con datos personales) y el aviso del dictado por voz (Google en Chrome); y confirmar en n8n que un `last_name` vacío no rompe el workflow de Careers (el chat parte el nombre completo en nombre y apellidos).
+- [ ] **Archivo del chat de Careers en n8n** (webhook `careers-form`): el chat ahora acepta un archivo opcional en la última pregunta (PDF, Word, PowerPoint, PNG o JPG, 10 MB) y lo envía en el campo `cv`. Confirmar que el workflow acepta esos tipos, **validar tipo y tamaño (≤ 10 MB) también en el servidor** y aplicarle la misma conservación y borrado que al resto de la candidatura.
 - [ ] **Revisión de textos**
   - Español.
   - Preguntas frecuentes (FAQ).
