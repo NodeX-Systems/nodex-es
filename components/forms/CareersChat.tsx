@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type KeyboardEvent,
+  type ReactNode,
+} from "react";
 import {
   AREAS,
   buildCareersBody,
@@ -12,7 +20,7 @@ import {
   type Profile,
 } from "@/components/forms/careers";
 import FormPopup, { type PopupState } from "@/components/forms/FormPopup";
-import { useDictation, type DictationError } from "@/components/forms/useDictation";
+import { dictationSupported, useDictation, type DictationError } from "@/components/forms/useDictation";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { CONTACT_EMAIL } from "@/lib/constants";
@@ -134,7 +142,7 @@ const COPY = {
     failTitle: "Something went wrong",
     failMsg: `Please try again or email us directly at ${CONTACT_EMAIL}.`,
     close: "Close",
-    lang: "en-US",
+    dictLang: "Dictation language",
   },
   es: {
     technical: "Técnico", nontechnical: "No técnico",
@@ -199,9 +207,15 @@ const COPY = {
     failTitle: "Algo ha ido mal",
     failMsg: `Inténtalo de nuevo o escríbenos directamente a ${CONTACT_EMAIL}.`,
     close: "Cerrar",
-    lang: "es-ES",
+    dictLang: "Idioma del dictado",
   },
 } as const;
+
+// The Web Speech API cannot detect the language, so it is chosen by the person
+// (defaulting to the page language) and passed to the recognizer.
+const DICT_LANGS = { en: { code: "en-US", label: "English" }, es: { code: "es-ES", label: "Español" } } as const;
+// Speech support is only known in the browser (false on the server render).
+const noSubscribe = () => () => {};
 
 const pill =
   "inline-flex min-h-11 items-center justify-center rounded-full border border-line-strong px-[18px] text-[15px] font-medium text-ink transition-[background-color,color,border-color,transform] duration-200 hover:border-ink hover:bg-ink hover:text-canvas active:scale-[0.96]";
@@ -268,6 +282,8 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   const [text, setText] = useState("");
   const [meta, setMeta] = useState<Meta>(null);
   const [micInfo, setMicInfo] = useState(false);
+  const [dictLang, setDictLang] = useState<Locale>(locale);
+  const canDictate = useSyncExternalStore(noSubscribe, dictationSupported, () => false);
   const [sending, setSending] = useState(false);
   const [popup, setPopup] = useState<PopupState>(null);
 
@@ -278,7 +294,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   // Nothing scrolls or takes focus until the person has answered something, so
   // opening the page never pops the keyboard or moves the viewport.
   const started = useRef(false);
-  const dictation = useDictation(t.lang);
+  const dictation = useDictation();
   const closePopup = useCallback(() => setPopup(null), []);
 
   const push = (items: NewItem[]) =>
@@ -288,7 +304,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   });
 
   function reset(notice?: string) {
-    dictation.stop();
+    dictation.cancel();
     started.current = false;
     setEpoch((e) => e + 1);
     setLog([{ id: 0, kind: "q", step: "profile", who: "", profile: "technical", typing: false }]);
@@ -296,6 +312,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
     setStep("profile");
     setEditing(null);
     setConsent(false);
+    setDictLang(locale);
     setText("");
     setMeta(notice ? { kind: "info", text: notice } : null);
     threadRef.current?.scrollTo({ top: 0 });
@@ -312,7 +329,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
     const a: Answers = { ...answers, [k]: value };
     // A different profile means a different list of areas.
     if (k === "profile" && answers.profile && answers.profile !== value) a.area = "";
-    dictation.stop();
+    dictation.cancel();
     started.current = true;
     setAnswers(a);
     setMeta(null);
@@ -352,7 +369,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   }
 
   function goBack() {
-    dictation.stop();
+    dictation.cancel();
     started.current = true;
     setMeta(null);
     if (editing) {
@@ -404,7 +421,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   function submitText() {
     const v = text.trim();
     if (!isTextStep(step) || !(v || (step === "extra" && answers.cv))) return;
-    dictation.stop();
+    dictation.cancel();
     if (step === "extra") {
       const f = answers.cv;
       return accept(
@@ -436,7 +453,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
   }
 
   function edit(k: TextKey) {
-    dictation.stop();
+    dictation.cancel();
     started.current = true;
     cvBeforeEdit.current = answers.cv;
     setEditing(k);
@@ -450,7 +467,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
     if (dictation.listening) return dictation.stop();
     setMicInfo(true);
     setMeta(null);
-    dictation.start(text.trim(), setText, (err: DictationError) =>
+    dictation.start(DICT_LANGS[dictLang].code, text.trim(), setText, (err: DictationError) =>
       setMeta({ kind: "error", text: t.mic[err] }),
     );
   }
@@ -696,6 +713,9 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                 value={text}
                 placeholder={placeholder}
                 onChange={(e) => {
+                  // Typing takes over from dictation; otherwise the next
+                  // recognized phrase would overwrite what was typed.
+                  if (dictation.listening) dictation.cancel();
                   setText(e.target.value);
                   if (meta?.kind === "error") setMeta(null);
                 }}
@@ -779,6 +799,33 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                     {t.privacy}
                   </Link>
                 </span>
+              ) : null}
+              {/* Shown with the dictation notice, once the mic has been pressed, so
+                  the sticky footer stays short for people who only type. */}
+              {canDictate && micInfo ? (
+                <div role="group" aria-label={t.dictLang} className="mb-1.5 flex flex-wrap items-center justify-center gap-x-2">
+                  <span className="text-[13px]">{t.dictLang}</span>
+                  {(Object.keys(DICT_LANGS) as Locale[]).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      lang={l}
+                      aria-pressed={dictLang === l}
+                      onClick={() => {
+                        if (dictLang === l) return;
+                        dictation.cancel();
+                        setDictLang(l);
+                      }}
+                      className={cn(
+                        // 44px target; the negative margin keeps the line compact.
+                        "-my-1 inline-flex min-h-11 items-center rounded-full border px-3 text-[13px] transition-colors duration-200",
+                        dictLang === l ? "border-brand text-brand" : "border-line-strong text-body hover:border-ink hover:text-ink",
+                      )}
+                    >
+                      {DICT_LANGS[l].label}
+                    </button>
+                  ))}
+                </div>
               ) : null}
               <label className="flex items-start justify-center gap-3 text-left">
                 <input
