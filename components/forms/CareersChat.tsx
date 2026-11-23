@@ -313,6 +313,7 @@ export default function CareersChat({ locale }: { locale: Locale }) {
     setEditing(null);
     setConsent(false);
     setDictLang(locale);
+    setMicInfo(false);
     setText("");
     setMeta(notice ? { kind: "info", text: notice } : null);
     threadRef.current?.scrollTo({ top: 0 });
@@ -713,9 +714,10 @@ export default function CareersChat({ locale }: { locale: Locale }) {
                 value={text}
                 placeholder={placeholder}
                 onChange={(e) => {
-                  // Typing takes over from dictation; otherwise the next
+                  // Typing takes over from dictation (also from a stopped one
+                  // still delivering its last words); otherwise the next
                   // recognized phrase would overwrite what was typed.
-                  if (dictation.listening) dictation.cancel();
+                  dictation.cancel();
                   setText(e.target.value);
                   if (meta?.kind === "error") setMeta(null);
                 }}
